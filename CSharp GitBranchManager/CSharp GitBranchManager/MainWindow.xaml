@@ -1,0 +1,120 @@
+﻿<Window x:Class="CSharp_GitBranchManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CSharp_GitBranchManager"
+        mc:Ignorable="d"
+        Title="CSharp GitBranchManager" Height="720" Width="1240">
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TabControl x:Name="MainTabControl" Grid.Row="0">
+            <TabItem x:Name="TabLocalBranches" Header="Local branches">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Orientation="Vertical">
+                        <Grid Margin="5,5,5,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="Load obsolete local branches" Click="LoadLocalBranches_Click" />
+                            <Button Grid.Column="1" Content="Delete selected local branches" Click="DeleteSelectedLocalBranches_Click" />
+                        </Grid>
+                        <Grid Margin="5,0,5,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Content="Filter" VerticalAlignment="Center" />
+                            <TextBox x:Name="LocalFilterTextBox" VerticalAlignment="Center" Grid.Column="1" Width="Auto" />
+                        </Grid>
+                        <DataGrid x:Name="LocalBranchesGrid" KeyDown="LocalBranchesGrid_KeyDown" AutoGenerateColumns="False" Margin="5,0,5,0" SelectionMode="Extended" CanUserAddRows="False" SelectionUnit="FullRow">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Header="Selection" Binding="{Binding IsSelected}" SortMemberPath="IsSelected" />
+                                <DataGridTextColumn Header="Last commit date" Binding="{Binding LastCommitDate}" SortMemberPath="LastCommitDate" IsReadOnly="True" Width="Auto" />
+                                <DataGridTextColumn Header="Last commit by" Binding="{Binding LastCommitBy}" SortMemberPath="LastCommitBy" IsReadOnly="True" Width="Auto" />
+                                <DataGridTextColumn Header="Branch name" Binding="{Binding Name}" SortMemberPath="Name" IsReadOnly="True" Width="*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem x:Name="TabRemoteBranches" Header="Remote branches">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Orientation="Vertical">
+                        <Grid Margin="5,5,5,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="Load obsolete remote branches" Click="LoadRemoteBranches_Click" />
+                            <Button Grid.Column="1" Content="Delete selected remote branches" Click="DeleteSelectedRemoteBranches_Click" />
+                        </Grid>
+                        <Grid Margin="5,0,5,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Content="Filter" VerticalAlignment="Center" />
+                            <TextBox x:Name="RemoteFilterTextBox" VerticalAlignment="Center" Grid.Column="1" Width="Auto" />
+                        </Grid>
+                        <DataGrid x:Name="RemoteBranchesGrid" KeyDown="RemoteBranchesGrid_KeyDown" AutoGenerateColumns="False" Margin="5,0,5,0" SelectionMode="Extended" CanUserAddRows="False" SelectionUnit="FullRow">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Header="Selection" Binding="{Binding IsSelected}" SortMemberPath="IsSelected" />
+                                <DataGridTextColumn Header="Last commit date" Binding="{Binding LastCommitDate}" SortMemberPath="LastCommitDate" IsReadOnly="True" Width="Auto" />
+                                <DataGridTextColumn Header="Last commit by" Binding="{Binding LastCommitBy}" SortMemberPath="LastCommitBy" IsReadOnly="True" Width="Auto" />
+                                <DataGridTextColumn Header="Branch name" Binding="{Binding Name}" SortMemberPath="Name" IsReadOnly="True" Width="*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Configuration">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Orientation="Vertical" Margin="5">
+                        <Grid Margin="0,0,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Label Content="Directory:" VerticalAlignment="Center" />
+                            <TextBox x:Name="GitRepoPathTextBox" Grid.Column="1" Text="Path to git repository..." Margin="0,0,5,0" VerticalAlignment="Center" />
+                            <Button Click="SelectRepoPath_Click" Grid.Column="2" VerticalAlignment="Center">
+                                <Image Source="Icons/folder_icon.png" Width="20" Height="20" />
+                            </Button>
+                        </Grid>
+                        <Grid Margin="0,0,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Label Content="Max age (months)" Margin="0,0,5,0" VerticalAlignment="Center" />
+                            <TextBox x:Name="MaxRemoteAgeTextBox" Grid.Column="1" Margin="0,0,5,0" VerticalAlignment="Center"  Text="6"/>
+                        </Grid>
+
+                        <Button Content="Save" Click="SaveConfig_Click"  Margin="0,0,0,0" />
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+        <StatusBar x:Name="MainStatusBar" Grid.Row="1">
+            <StatusBarItem>
+                <ProgressBar x:Name="MainProgressBar"
+                     Height="20" VerticalAlignment="Center"
+                     Minimum="0" Maximum="100" Value="0"
+                     Width="250" />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock x:Name="StatusItem" Text="Visible Items Count: 0 (Total: 0)" />
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>
