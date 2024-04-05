@@ -12,15 +12,20 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Threading;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using MessageBox = System.Windows.MessageBox;
 
 namespace CSharp_GitBranchManager
 {
     public partial class MainWindow : Window
     {
         private const string ConfigFilePath = "config.json";
+        private const int filterDelayMilliseconds = 300;
         private readonly ListCollectionView localBranchesView;
         private readonly ListCollectionView remoteBranchesView;
+        private DispatcherTimer filterTimerLocal;
+        private DispatcherTimer filterTimerRemote;
         private bool skipUpdateStatusBar = false;
         public ObservableCollection<BranchInfo> LocalBranches { get; set; }
         public ObservableCollection<BranchInfo> RemoteBranches { get; set; }
@@ -30,6 +35,7 @@ namespace CSharp_GitBranchManager
             InitializeComponent();
             LoadConfig();
             MaxRemoteAgeTextBox.PreviewTextInput += MaxRemoteAgeTextBox_PreviewTextInput;
+            MainTabControl.SelectionChanged += (sender, e) => UpdateStatusBar();
 
             LocalBranches = [];
             LocalBranchesGrid.ItemsSource = LocalBranches;
@@ -37,16 +43,14 @@ namespace CSharp_GitBranchManager
             localBranchesView = (ListCollectionView)CollectionViewSource.GetDefaultView(LocalBranches);
             SetupSorting(localBranchesView, LocalBranchesGrid);
 
+            filterTimerLocal = new DispatcherTimer();
+            filterTimerLocal.Interval = TimeSpan.FromMilliseconds(filterDelayMilliseconds);
+            filterTimerLocal.Tick += FilterTimerLocal_Tick;
+
             LocalFilterTextBox.TextChanged += (sender, e) =>
             {
-                localBranchesView.Filter = item =>
-                {
-                    if (string.IsNullOrEmpty(LocalFilterTextBox.Text))
-                        return true;
-
-                    return item is BranchInfo branchInfo && branchInfo.Name.Contains(LocalFilterTextBox.Text, StringComparison.OrdinalIgnoreCase);
-                };
-                UpdateStatusBar();
+                filterTimerLocal.Stop();
+                filterTimerLocal.Start();
             };
 
             RemoteBranches = [];
@@ -55,21 +59,15 @@ namespace CSharp_GitBranchManager
             remoteBranchesView = (ListCollectionView)CollectionViewSource.GetDefaultView(RemoteBranches);
             SetupSorting(remoteBranchesView, RemoteBranchesGrid);
 
+            filterTimerRemote = new DispatcherTimer();
+            filterTimerRemote.Interval = TimeSpan.FromMilliseconds(filterDelayMilliseconds);
+            filterTimerRemote.Tick += FilterTimerRemote_Tick;
+
             RemoteFilterTextBox.TextChanged += (sender, e) =>
             {
-                remoteBranchesView.Filter = item =>
-                {
-                    if (string.IsNullOrEmpty(RemoteFilterTextBox.Text))
-                        return true;
-
-                    return item is BranchInfo branchInfo && branchInfo.Name.Contains(RemoteFilterTextBox.Text, StringComparison.OrdinalIgnoreCase);
-                };
-                UpdateStatusBar();
+                filterTimerRemote.Stop();
+                filterTimerRemote.Start();
             };
-
-            LocalBranches.CollectionChanged += (sender, e) => UpdateStatusBar();
-            RemoteBranches.CollectionChanged += (sender, e) => UpdateStatusBar();
-            MainTabControl.SelectionChanged += (sender, e) => UpdateStatusBar();
         }
 
         private static bool IsBranchMergedIntoMain(HashSet<Commit> mainCommits, Branch branch)
@@ -128,6 +126,28 @@ namespace CSharp_GitBranchManager
             }
         }
 
+        private void ApplyLocalBranchesFilter()
+        {
+            localBranchesView.Filter = item =>
+            {
+                if (string.IsNullOrEmpty(LocalFilterTextBox.Text))
+                    return true;
+
+                return item is BranchInfo branchInfo && branchInfo.Name.Contains(LocalFilterTextBox.Text, StringComparison.OrdinalIgnoreCase);
+            };
+        }
+
+        private void ApplyRemoteBranchesFilter()
+        {
+            remoteBranchesView.Filter = item =>
+            {
+                if (string.IsNullOrEmpty(RemoteFilterTextBox.Text))
+                    return true;
+
+                return item is BranchInfo branchInfo && branchInfo.Name.Contains(RemoteFilterTextBox.Text, StringComparison.OrdinalIgnoreCase);
+            };
+        }
+
         private void DeleteSelectedLocalBranches_Click(object sender, RoutedEventArgs e)
         {
             using (var repo = new Repository(GitRepoPathTextBox.Text))
@@ -170,6 +190,20 @@ namespace CSharp_GitBranchManager
             }
         }
 
+        private void FilterTimerLocal_Tick(object sender, EventArgs e)
+        {
+            filterTimerLocal.Stop();
+            ApplyLocalBranchesFilter();
+            UpdateStatusBar();
+        }
+
+        private void FilterTimerRemote_Tick(object sender, EventArgs e)
+        {
+            filterTimerRemote.Stop();
+            ApplyRemoteBranchesFilter();
+            UpdateStatusBar();
+        }
+
         private void LoadConfig()
         {
             try
@@ -186,7 +220,7 @@ namespace CSharp_GitBranchManager
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Error loading repository path: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error loading repository path: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -240,7 +274,7 @@ namespace CSharp_GitBranchManager
                 var mainBranch = repo.Branches["main"] ?? repo.Branches["master"];
                 if (mainBranch == null)
                 {
-                    System.Windows.MessageBox.Show("Main branch not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Main branch not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 var mainCommits = new HashSet<Commit>(mainBranch.Commits);
@@ -313,11 +347,11 @@ namespace CSharp_GitBranchManager
             {
                 string json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(ConfigFilePath, json);
-                System.Windows.MessageBox.Show("Repository path saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Repository path saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Error saving repository path: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error saving repository path: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -362,41 +396,6 @@ namespace CSharp_GitBranchManager
                 StatusItem.Text = string.Empty;
                 MainProgressBar.Value = 0;
             }
-        }
-
-        public class BranchInfo : INotifyPropertyChanged
-        {
-            private bool isSelected;
-
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            public bool IsSelected
-            {
-                get { return isSelected; }
-                set
-                {
-                    if (isSelected != value)
-                    {
-                        isSelected = value;
-                        NotifyPropertyChanged(nameof(IsSelected));
-                    }
-                }
-            }
-
-            public string LastCommitBy { get; set; }
-            public string LastCommitDate { get; set; }
-            public string Name { get; set; }
-
-            private void NotifyPropertyChanged(string propertyName)
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        public class Config
-        {
-            public int MaxRemoteBranchAgeMonths { get; set; } = 6;
-            public string RepositoryPath { get; set; }
         }
     }
 }

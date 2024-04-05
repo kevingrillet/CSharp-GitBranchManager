@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="folder_w95.png" />
-    <Resource Include="git.png" />
+    <Resource Include="Icons\folder_w95.png" />
+    <Resource Include="Icons\git.png" />
   </ItemGroup>
 
 </Project>
