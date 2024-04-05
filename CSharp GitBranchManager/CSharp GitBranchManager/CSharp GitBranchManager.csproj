@@ -14,4 +14,9 @@
     <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Resource Include="folder_w95.png" />
+    <Resource Include="git.png" />
+  </ItemGroup>
+
 </Project>
