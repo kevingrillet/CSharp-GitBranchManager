@@ -22,10 +22,11 @@ namespace CSharp_GitBranchManager
     {
         private const string ConfigFilePath = "config.json";
         private const int filterDelayMilliseconds = 300;
+        private static readonly char[] separator = [',', ';'];
+        private readonly DispatcherTimer filterTimerLocal;
+        private readonly DispatcherTimer filterTimerRemote;
         private readonly ListCollectionView localBranchesView;
         private readonly ListCollectionView remoteBranchesView;
-        private DispatcherTimer filterTimerLocal;
-        private DispatcherTimer filterTimerRemote;
         private bool skipUpdateStatusBar = false;
         public ObservableCollection<BranchInfo> LocalBranches { get; set; }
         public ObservableCollection<BranchInfo> RemoteBranches { get; set; }
@@ -43,8 +44,10 @@ namespace CSharp_GitBranchManager
             localBranchesView = (ListCollectionView)CollectionViewSource.GetDefaultView(LocalBranches);
             SetupSorting(localBranchesView, LocalBranchesGrid);
 
-            filterTimerLocal = new DispatcherTimer();
-            filterTimerLocal.Interval = TimeSpan.FromMilliseconds(filterDelayMilliseconds);
+            filterTimerLocal = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(filterDelayMilliseconds)
+            };
             filterTimerLocal.Tick += FilterTimerLocal_Tick;
 
             LocalFilterTextBox.TextChanged += (sender, e) =>
@@ -59,8 +62,10 @@ namespace CSharp_GitBranchManager
             remoteBranchesView = (ListCollectionView)CollectionViewSource.GetDefaultView(RemoteBranches);
             SetupSorting(remoteBranchesView, RemoteBranchesGrid);
 
-            filterTimerRemote = new DispatcherTimer();
-            filterTimerRemote.Interval = TimeSpan.FromMilliseconds(filterDelayMilliseconds);
+            filterTimerRemote = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(filterDelayMilliseconds)
+            };
             filterTimerRemote.Tick += FilterTimerRemote_Tick;
 
             RemoteFilterTextBox.TextChanged += (sender, e) =>
@@ -68,6 +73,30 @@ namespace CSharp_GitBranchManager
                 filterTimerRemote.Stop();
                 filterTimerRemote.Start();
             };
+        }
+
+        private static void ExportBranches(string branchType, IEnumerable<string> branchNames)
+        {
+            try
+            {
+                var dialog = new SaveFileDialog
+                {
+                    Filter = "Text Files (*.txt)|*.txt",
+                    DefaultExt = "txt",
+                    FileName = $"Export {branchType} Names"
+                };
+
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    string filePath = dialog.FileName;
+                    File.WriteAllLines(filePath, branchNames);
+                    MessageBox.Show("Branch names exported successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error exporting branch names: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private static bool IsBranchMergedIntoMain(HashSet<Commit> mainCommits, Branch branch)
@@ -190,6 +219,16 @@ namespace CSharp_GitBranchManager
             }
         }
 
+        private void ExportLocalBranches_Click(object sender, RoutedEventArgs e)
+        {
+            ExportBranches("LocalBranches", LocalBranches.Select(branch => branch.Name));
+        }
+
+        private void ExportRemoteBranches_Click(object sender, RoutedEventArgs e)
+        {
+            ExportBranches("RemoteBranches", RemoteBranches.Select(branch => branch.Name));
+        }
+
         private void FilterTimerLocal_Tick(object sender, EventArgs e)
         {
             filterTimerLocal.Stop();
@@ -305,7 +344,7 @@ namespace CSharp_GitBranchManager
                 var mainCommits = new HashSet<Commit>(mainBranch.Commits);
 
                 var remoteExcludedBranches = RemoteExcludedBranchesTextBox.Text
-                    .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Split(separator, StringSplitOptions.RemoveEmptyEntries)
                     .Select(branch => $"origin/{branch.Trim()}")
                     .ToList();
 

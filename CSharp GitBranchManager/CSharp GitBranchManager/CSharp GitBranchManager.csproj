@@ -11,10 +11,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Icons\export.png" />
+    <None Remove="Icons\folder_w95.png" />
+    <None Remove="Icons\git.png" />
+    <None Remove="Icons\reload.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Icons\export.png" />
     <Resource Include="Icons\folder_w95.png" />
     <Resource Include="Icons\git.png" />
     <Resource Include="Icons\reload.png" />
