@@ -34,7 +34,7 @@ namespace CSharp_GitBranchManager
         {
             InitializeComponent();
             LoadConfig();
-            MaxRemoteAgeTextBox.PreviewTextInput += MaxRemoteAgeTextBox_PreviewTextInput;
+            RemoteMaxAgeTextBox.PreviewTextInput += MaxRemoteAgeTextBox_PreviewTextInput;
             MainTabControl.SelectionChanged += (sender, e) => UpdateStatusBar();
 
             LocalBranches = [];
@@ -150,20 +150,20 @@ namespace CSharp_GitBranchManager
 
         private void DeleteSelectedLocalBranches_Click(object sender, RoutedEventArgs e)
         {
+            var result = MessageBox.Show("Are you sure you want to delete the selected local branches?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result != MessageBoxResult.Yes) return;
+
             using (var repo = new Repository(GitRepoPathTextBox.Text))
             {
                 var branchesToRemove = LocalBranches.Where(b => b.IsSelected).ToList();
 
                 foreach (BranchInfo branchInfo in branchesToRemove)
                 {
-                    if (branchInfo.IsSelected)
+                    var branch = repo.Branches[branchInfo.Name];
+                    if (branch != null && !branch.IsRemote)
                     {
-                        var branch = repo.Branches[branchInfo.Name];
-                        if (branch != null && !branch.IsRemote)
-                        {
-                            repo.Branches.Remove(branch);
-                            LocalBranches.Remove(branchInfo);
-                        }
+                        repo.Branches.Remove(branch);
+                        LocalBranches.Remove(branchInfo);
                     }
                 }
             }
@@ -171,20 +171,20 @@ namespace CSharp_GitBranchManager
 
         private void DeleteSelectedRemoteBranches_Click(object sender, RoutedEventArgs e)
         {
+            var result = MessageBox.Show("Are you sure you want to delete the selected remote branches?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result != MessageBoxResult.Yes) return;
+
             using (var repo = new Repository(GitRepoPathTextBox.Text))
             {
                 var branchesToRemove = RemoteBranches.Where(b => b.IsSelected).ToList();
 
                 foreach (BranchInfo branchInfo in branchesToRemove)
                 {
-                    if (branchInfo.IsSelected)
+                    var branch = repo.Branches[branchInfo.Name];
+                    if (branch != null && branch.IsRemote)
                     {
-                        var branch = repo.Branches[branchInfo.Name];
-                        if (branch != null && branch.IsRemote)
-                        {
-                            repo.Branches.Remove(branch);
-                            RemoteBranches.Remove(branchInfo);
-                        }
+                        repo.Branches.Remove(branch);
+                        RemoteBranches.Remove(branchInfo);
                     }
                 }
             }
@@ -214,8 +214,24 @@ namespace CSharp_GitBranchManager
                 Config config = JsonSerializer.Deserialize<Config>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 if (config != null && !string.IsNullOrWhiteSpace(config.RepositoryPath))
                 {
+                    // General
                     GitRepoPathTextBox.Text = config.RepositoryPath;
-                    MaxRemoteAgeTextBox.Text = config.MaxRemoteBranchAgeMonths.ToString();
+                    // Local
+                    LocalUnusedCheckBox.IsChecked = config.LocalUnusedCheckBox;
+                    LocalMaxAgeCheckBox.IsChecked = config.LocalMaxAgeCheckBox;
+                    LocalMaxAgeTextBox.Text = config.LocalMaxAgeMonths.ToString();
+                    // Remote
+                    RemoteMergedCheckBox.IsChecked = config.RemoteMergedCheckBox;
+                    if (!string.IsNullOrWhiteSpace(config.RemoteMergedBranchValue))
+                    {
+                        RemoteMergedComboBox.Items.Clear();
+                        RemoteMergedComboBox.Items.Add(config.RemoteMergedBranchValue);
+                        RemoteMergedComboBox.SelectedIndex = 0;
+                    }
+                    RemoteMaxAgeCheckBox.IsChecked = config.RemoteMaxAgeCheckBox;
+                    RemoteMaxAgeTextBox.Text = config.RemoteMaxAgeMonths.ToString();
+                    RemoteExcludedBranchesCheckBox.IsChecked = config.RemoteExcludedBranchesCheckBox;
+                    RemoteExcludedBranchesTextBox.Text = config.RemoteExcludedBranches;
                 }
             }
             catch (Exception ex)
@@ -234,19 +250,28 @@ namespace CSharp_GitBranchManager
                 var branches = repo.Branches
                     .Where(b => !b.IsRemote)
                     .ToList();
-                var totalBranches = branches.Count;
+
                 var currentBranchIndex = 0;
                 var progressReporter = new Progress<int>(value =>
                 {
-                    UpdateStatusBar(value, totalBranches);
+                    UpdateStatusBar(value, branches.Count);
                 });
+
+                DateTime currentDate = DateTime.Now;
+                _ = int.TryParse(LocalMaxAgeTextBox.Text, out int maxAgeMonths);
+                var checkMaxAge = LocalMaxAgeCheckBox.IsChecked ?? false;
+                var checkUnused = LocalUnusedCheckBox.IsChecked ?? false;
 
                 await Task.Run(() =>
                 {
                     foreach (var branch in branches)
                     {
                         ((IProgress<int>)progressReporter).Report(++currentBranchIndex);
-                        if (repo.Branches.Any(b => b.IsRemote && b.FriendlyName.Contains(branch.FriendlyName))) continue;
+                        TimeSpan age = currentDate - branch.Tip.Author.When.LocalDateTime;
+
+                        if (checkMaxAge && ((age.TotalDays / 30) < maxAgeMonths)) continue;
+
+                        if (checkUnused && repo.Branches.Any(b => b.IsRemote && b.FriendlyName.Contains(branch.FriendlyName))) continue;
 
                         System.Windows.Application.Current.Dispatcher.Invoke(() =>
                         {
@@ -271,25 +296,34 @@ namespace CSharp_GitBranchManager
                 RemoteBranches.Clear();
                 skipUpdateStatusBar = true;
 
-                var mainBranch = repo.Branches["main"] ?? repo.Branches["master"];
+                var mainBranch = repo.Branches[RemoteMergedComboBox.Text];
                 if (mainBranch == null)
                 {
-                    MessageBox.Show("Main branch not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"{RemoteMergedComboBox.Text} branch not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 var mainCommits = new HashSet<Commit>(mainBranch.Commits);
 
-                var branches = repo.Branches
-                    .Where(b => b.IsRemote && b != mainBranch)
+                var remoteExcludedBranches = RemoteExcludedBranchesTextBox.Text
+                    .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(branch => $"origin/{branch.Trim()}")
                     .ToList();
-                var totalBranches = branches.Count;
+
+                var branches = repo.Branches
+                    .Where(b => b.IsRemote && b != mainBranch
+                        && !remoteExcludedBranches.Contains(b.FriendlyName))
+                    .ToList();
+
                 var currentBranchIndex = 0;
                 var progressReporter = new Progress<int>(value =>
                 {
-                    UpdateStatusBar(value, totalBranches);
+                    UpdateStatusBar(value, branches.Count);
                 });
+
                 DateTime currentDate = DateTime.Now;
-                _ = int.TryParse(MaxRemoteAgeTextBox.Text, out int maxAgeMonths);
+                _ = int.TryParse(RemoteMaxAgeTextBox.Text, out int maxAgeMonths);
+                var checkMaxAge = RemoteMaxAgeCheckBox.IsChecked ?? false;
+                var checkMerged = RemoteMergedCheckBox.IsChecked ?? false;
 
                 await Task.Run(() =>
                 {
@@ -297,8 +331,9 @@ namespace CSharp_GitBranchManager
                     {
                         ((IProgress<int>)progressReporter).Report(++currentBranchIndex);
                         TimeSpan age = currentDate - branch.Tip.Author.When.LocalDateTime;
-                        if ((age.TotalDays / 30) < maxAgeMonths) continue;
-                        if (!IsBranchMergedIntoMain(mainCommits, branch)) continue;
+
+                        if (checkMaxAge && (age.TotalDays / 30) < maxAgeMonths) continue;
+                        if (checkMerged && !IsBranchMergedIntoMain(mainCommits, branch)) continue;
 
                         System.Windows.Application.Current.Dispatcher.Invoke(() =>
                         {
@@ -329,6 +364,27 @@ namespace CSharp_GitBranchManager
             e.Handled = !int.TryParse(e.Text, out _);
         }
 
+        private void ReloadRemoteBranches_Click(object sender, RoutedEventArgs e)
+        {
+            using (var repo = new Repository(GitRepoPathTextBox.Text))
+            {
+                var branches = repo.Branches
+                    .Where(b => b.IsRemote)
+                    .ToList();
+
+                var value = RemoteMergedComboBox.Text;
+
+                RemoteMergedComboBox.Items.Clear();
+
+                foreach (var branch in branches)
+                {
+                    RemoteMergedComboBox.Items.Add(branch.FriendlyName.Replace("origin/", ""));
+                }
+
+                RemoteMergedComboBox.SelectedIndex = RemoteMergedComboBox.Items.IndexOf(value);
+            }
+        }
+
         private void RemoteBranchesGrid_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Space)
@@ -340,8 +396,24 @@ namespace CSharp_GitBranchManager
         private void SaveConfig_Click(object sender, RoutedEventArgs e)
         {
             string repoPath = GitRepoPathTextBox.Text.Trim();
-            _ = int.TryParse(MaxRemoteAgeTextBox.Text, out var MaxRemoteBranchAgeMonths);
-            Config config = new() { RepositoryPath = repoPath, MaxRemoteBranchAgeMonths = MaxRemoteBranchAgeMonths };
+            _ = int.TryParse(LocalMaxAgeTextBox.Text, out var LocalMaxAgeMonths);
+            _ = int.TryParse(RemoteMaxAgeTextBox.Text, out var RemoteMaxAgeMonths);
+            Config config = new()
+            {
+                // General
+                RepositoryPath = repoPath,
+                // Local
+                LocalUnusedCheckBox = LocalUnusedCheckBox.IsChecked ?? false,
+                LocalMaxAgeCheckBox = LocalMaxAgeCheckBox.IsChecked ?? false,
+                LocalMaxAgeMonths = LocalMaxAgeMonths,
+                // Remote
+                RemoteMergedCheckBox = RemoteMergedCheckBox.IsChecked ?? false,
+                RemoteMergedBranchValue = RemoteMergedComboBox.Text,
+                RemoteMaxAgeCheckBox = RemoteMaxAgeCheckBox.IsChecked ?? false,
+                RemoteMaxAgeMonths = RemoteMaxAgeMonths,
+                RemoteExcludedBranchesCheckBox = RemoteExcludedBranchesCheckBox.IsChecked ?? false,
+                RemoteExcludedBranches = RemoteExcludedBranchesTextBox.Text
+            };
 
             try
             {

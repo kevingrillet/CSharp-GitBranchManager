@@ -50,11 +50,12 @@
                     <StackPanel Orientation="Vertical">
                         <Grid Margin="5,5,5,0">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="235*" />
+                                <ColumnDefinition Width="377*"/>
+                                <ColumnDefinition Width="612*" />
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Content="Load obsolete remote branches" Click="LoadRemoteBranches_Click" />
-                            <Button Grid.Column="1" Content="Delete selected remote branches" Click="DeleteSelectedRemoteBranches_Click" />
+                            <Button Grid.Column="0" Content="Load obsolete remote branches" Click="LoadRemoteBranches_Click" Grid.ColumnSpan="2" />
+                            <Button Grid.Column="2" Content="Delete selected remote branches" Click="DeleteSelectedRemoteBranches_Click" />
                         </Grid>
                         <Grid Margin="5,0,5,0">
                             <Grid.ColumnDefinitions>
@@ -79,27 +80,86 @@
             <TabItem Header="Configuration">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Orientation="Vertical" Margin="5">
-                        <Grid Margin="0,0,0,5">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <Label Content="Directory:" VerticalAlignment="Center" />
-                            <TextBox x:Name="GitRepoPathTextBox" Grid.Column="1" Text="Path to git repository..." Margin="0,0,5,0" VerticalAlignment="Center" />
-                            <Button Click="SelectRepoPath_Click" Grid.Column="2" VerticalAlignment="Center">
-                                <Image Source="/Icons/folder_w95.png" Width="20" Height="20" />
-                            </Button>
-                        </Grid>
-                        <Grid Margin="0,0,0,5">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Label Content="Max age (months)" Margin="0,0,5,0" VerticalAlignment="Center" />
-                            <TextBox x:Name="MaxRemoteAgeTextBox" Grid.Column="1" Margin="0,0,5,0" VerticalAlignment="Center"  Text="6"/>
-                        </Grid>
-
+                        <Border CornerRadius="2" BorderBrush="Gray" BorderThickness="1" Margin="0,0,0,5">
+                            <StackPanel>
+                                <Label Content="General"/>
+                                <Separator Height="1"/>
+                                <StackPanel Orientation="Vertical" Margin="5">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Label Content="Directory:" VerticalAlignment="Center" />
+                                        <TextBox x:Name="GitRepoPathTextBox" Grid.Column="1" Text="Path to git repository..." Margin="0,0,5,0" VerticalAlignment="Center" />
+                                        <Button Click="SelectRepoPath_Click" Grid.Column="2" VerticalAlignment="Center">
+                                            <Image Source="/Icons/folder_w95.png" Width="20" Height="20" />
+                                        </Button>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border CornerRadius="2" BorderBrush="Gray" BorderThickness="1" Margin="0,0,0,5">
+                            <StackPanel>
+                                <Label Content="Local branches"/>
+                                <Separator Height="1"/>
+                                <StackPanel Orientation="Vertical" Margin="5">
+                                    <Grid Margin="0,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200" />
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox Grid.Column="0" VerticalAlignment="Center" x:Name="LocalUnusedCheckBox" IsChecked="True">Unused branches</CheckBox>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox Grid.Column="0" VerticalAlignment="Center" x:Name="LocalMaxAgeCheckBox">Max age (months)</CheckBox>
+                                        <TextBox  Grid.Column="1"  VerticalAlignment="Center" x:Name="LocalMaxAgeTextBox" Text="6"/>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border CornerRadius="2" BorderBrush="Gray" BorderThickness="1" Margin="0,0,0,5">
+                            <StackPanel>
+                                <Label Content="Remote branches"/>
+                                <Separator Height="1"/>
+                                <StackPanel Orientation="Vertical" Margin="5">
+                                    <Grid Margin="0,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox Grid.Column="0" VerticalAlignment="Center" x:Name="RemoteMergedCheckBox" IsChecked="True">Merged</CheckBox>
+                                        <ComboBox  Grid.Column="1"  VerticalAlignment="Center" x:Name="RemoteMergedComboBox" Margin="0,0,5,0">
+                                            <ComboBoxItem IsSelected="True">master</ComboBoxItem>
+                                        </ComboBox>
+                                        <Button  Grid.Column="2" VerticalAlignment="Center" Click="ReloadRemoteBranches_Click">
+                                            <Image Source="/Icons/reload.png" Width="20" Height="20" />
+                                        </Button>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox Grid.Column="0" VerticalAlignment="Center" x:Name="RemoteMaxAgeCheckBox" IsChecked="True">Max age (months)</CheckBox>
+                                        <TextBox  Grid.Column="1"  VerticalAlignment="Center" x:Name="RemoteMaxAgeTextBox" Text="6"/>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox Grid.Column="0" VerticalAlignment="Center" x:Name="RemoteExcludedBranchesCheckBox" IsChecked="True">Branches excludes (CSV)</CheckBox>
+                                        <TextBox  Grid.Column="1"  VerticalAlignment="Center" x:Name="RemoteExcludedBranchesTextBox" Text="main; master"/>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
                         <Button Content="Save" Click="SaveConfig_Click"  Margin="0,0,0,0" />
                     </StackPanel>
                 </ScrollViewer>

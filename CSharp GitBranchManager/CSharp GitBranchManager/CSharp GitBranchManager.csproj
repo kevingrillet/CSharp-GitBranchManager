@@ -17,6 +17,7 @@
   <ItemGroup>
     <Resource Include="Icons\folder_w95.png" />
     <Resource Include="Icons\git.png" />
+    <Resource Include="Icons\reload.png" />
   </ItemGroup>
 
 </Project>
