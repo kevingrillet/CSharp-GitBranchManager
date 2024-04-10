@@ -1,6 +1,4 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Windows;
+﻿using System.Windows;
 
 namespace CSharp_GitBranchManager
 {
@@ -10,5 +8,4 @@ namespace CSharp_GitBranchManager
     public partial class App : Application
     {
     }
-
 }

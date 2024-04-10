@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp;
+﻿using CSharp_GitBranchManager.Model;
+using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,8 +17,14 @@ using System.Windows.Threading;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MessageBox = System.Windows.MessageBox;
 
-namespace CSharp_GitBranchManager
+namespace CSharp_GitBranchManager.View
 {
+    /// <summary>
+    /// TODO:
+    /// - Component for tab 1 / 2
+    /// - MVVM
+    /// - Scroll
+    /// </summary>
     public partial class MainWindow : Window
     {
         private const string ConfigFilePath = "config.json";
@@ -38,7 +45,7 @@ namespace CSharp_GitBranchManager
             RemoteMaxAgeTextBox.PreviewTextInput += MaxRemoteAgeTextBox_PreviewTextInput;
             MainTabControl.SelectionChanged += (sender, e) => UpdateStatusBar();
 
-            LocalBranches = [];
+            LocalBranches = new ObservableCollection<BranchInfo>();
             LocalBranchesGrid.ItemsSource = LocalBranches;
             LocalBranches.CollectionChanged += (sender, e) => UpdateStatusBar();
             localBranchesView = (ListCollectionView)CollectionViewSource.GetDefaultView(LocalBranches);
@@ -56,7 +63,7 @@ namespace CSharp_GitBranchManager
                 filterTimerLocal.Start();
             };
 
-            RemoteBranches = [];
+            RemoteBranches = new ObservableCollection<BranchInfo>();
             RemoteBranchesGrid.ItemsSource = RemoteBranches;
             RemoteBranches.CollectionChanged += (sender, e) => UpdateStatusBar();
             remoteBranchesView = (ListCollectionView)CollectionViewSource.GetDefaultView(RemoteBranches);
@@ -250,7 +257,7 @@ namespace CSharp_GitBranchManager
                 if (!File.Exists(ConfigFilePath)) return;
 
                 string json = File.ReadAllText(ConfigFilePath);
-                Config config = JsonSerializer.Deserialize<Config>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                AppConfig config = JsonSerializer.Deserialize<AppConfig>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 if (config != null && !string.IsNullOrWhiteSpace(config.RepositoryPath))
                 {
                     // General
@@ -275,7 +282,7 @@ namespace CSharp_GitBranchManager
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading repository path: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error loading config: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -345,7 +352,7 @@ namespace CSharp_GitBranchManager
 
                 var remoteExcludedBranches = RemoteExcludedBranchesTextBox.Text
                     .Split(separator, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(branch => $"origin/{branch.Trim()}")
+                    .Select(branch => branch.Trim())
                     .ToList();
 
                 var branches = repo.Branches
@@ -437,7 +444,7 @@ namespace CSharp_GitBranchManager
             string repoPath = GitRepoPathTextBox.Text.Trim();
             _ = int.TryParse(LocalMaxAgeTextBox.Text, out var LocalMaxAgeMonths);
             _ = int.TryParse(RemoteMaxAgeTextBox.Text, out var RemoteMaxAgeMonths);
-            Config config = new()
+            AppConfig config = new()
             {
                 // General
                 RepositoryPath = repoPath,
@@ -458,11 +465,11 @@ namespace CSharp_GitBranchManager
             {
                 string json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(ConfigFilePath, json);
-                MessageBox.Show("Repository path saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Config saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error saving repository path: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error saving config: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
