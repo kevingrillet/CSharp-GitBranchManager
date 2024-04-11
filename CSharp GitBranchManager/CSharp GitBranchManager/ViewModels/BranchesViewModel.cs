@@ -1,4 +1,4 @@
-﻿using CSharp_GitBranchManager.Model;
+﻿using CSharp_GitBranchManager.Models;
 using CSharp_GitBranchManager.Utils;
 using LibGit2Sharp;
 using System;
@@ -10,7 +10,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 
-namespace CSharp_GitBranchManager.ViewModel
+namespace CSharp_GitBranchManager.ViewModels
 {
     /// <summary>
     /// TODO:
@@ -106,7 +106,7 @@ namespace CSharp_GitBranchManager.ViewModel
             var result = MessageBox.Show($"Are you sure you want to delete the {Branches.Count(b => b.IsSelected)} selected ${Type.ToString().ToLower()} branches?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result != MessageBoxResult.Yes) return;
 
-            using (var repo = new Repository(Config.RepositoryPath))
+            using (var repo = new Repository(Config.GitRepositoryPath))
             {
                 var branchesToRemove = Branches.Where(b => b.IsSelected).ToList();
 
@@ -124,10 +124,10 @@ namespace CSharp_GitBranchManager.ViewModel
 
         private HashSet<Commit> GetMainCommits(Repository repo)
         {
-            var mainBranch = repo.Branches[Config.RemoteMergedBranchValue];
+            var mainBranch = repo.Branches[Config.RemoteMergedBranch];
             if (mainBranch == null)
             {
-                MessageBox.Show($"{Config.RemoteMergedBranchValue} branch not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{Config.RemoteMergedBranch} branch not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return [];
             }
             return new HashSet<Commit>(mainBranch.Commits);
@@ -135,7 +135,7 @@ namespace CSharp_GitBranchManager.ViewModel
 
         private async void Load(object parameter)
         {
-            using (var repo = new Repository(Config.RepositoryPath))
+            using (var repo = new Repository(Config.GitRepositoryPath))
             {
                 Branches.Clear();
 
@@ -149,10 +149,10 @@ namespace CSharp_GitBranchManager.ViewModel
                     .ToList();
 
                 DateTime currentDate = DateTime.Now;
-                var checkMaxAge = Type == BranchType.Local ? Config.LocalMaxAgeCheckBox : Config.RemoteMaxAgeCheckBox;
+                var checkMaxAge = Type == BranchType.Local ? Config.LocalMaxAge : Config.RemoteMaxAge;
                 var maxAgeMonths = Type == BranchType.Local ? Config.LocalMaxAgeMonths : Config.RemoteMaxAgeMonths;
-                var checkUnused = Type == BranchType.Local && Config.LocalUnusedCheckBox;
-                var checkMerged = Type == BranchType.Remote && Config.RemoteMergedCheckBox;
+                var checkUnused = Type == BranchType.Local && Config.LocalUnused;
+                var checkMerged = Type == BranchType.Remote && Config.RemoteMerged;
 
                 await Task.Run(() =>
                 {

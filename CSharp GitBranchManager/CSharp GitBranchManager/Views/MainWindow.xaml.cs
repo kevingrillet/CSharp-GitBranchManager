@@ -1,4 +1,4 @@
-﻿using CSharp_GitBranchManager.Model;
+﻿using CSharp_GitBranchManager.Models;
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
@@ -17,7 +17,7 @@ using System.Windows.Threading;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MessageBox = System.Windows.MessageBox;
 
-namespace CSharp_GitBranchManager.View
+namespace CSharp_GitBranchManager.Views
 {
     /// <summary>
     /// TODO:
@@ -122,7 +122,7 @@ namespace CSharp_GitBranchManager.View
                 grid.Sorting += (sender, e) =>
                 {
                     string propertyName = e.Column.SortMemberPath;
-                    ListSortDirection sortDirection = (e.Column.SortDirection != ListSortDirection.Ascending)
+                    ListSortDirection sortDirection = e.Column.SortDirection != ListSortDirection.Ascending
                         ? ListSortDirection.Ascending
                         : ListSortDirection.Descending;
 
@@ -258,26 +258,26 @@ namespace CSharp_GitBranchManager.View
 
                 string json = File.ReadAllText(ConfigFilePath);
                 AppConfiguration config = JsonSerializer.Deserialize<AppConfiguration>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                if (config != null && !string.IsNullOrWhiteSpace(config.RepositoryPath))
+                if (config != null && !string.IsNullOrWhiteSpace(config.GitRepositoryPath))
                 {
                     // General
-                    GitRepoPathTextBox.Text = config.RepositoryPath;
+                    GitRepoPathTextBox.Text = config.GitRepositoryPath;
                     // Local
-                    LocalUnusedCheckBox.IsChecked = config.LocalUnusedCheckBox;
-                    LocalMaxAgeCheckBox.IsChecked = config.LocalMaxAgeCheckBox;
+                    LocalUnusedCheckBox.IsChecked = config.LocalUnused;
+                    LocalMaxAgeCheckBox.IsChecked = config.LocalMaxAge;
                     LocalMaxAgeTextBox.Text = config.LocalMaxAgeMonths.ToString();
                     // Remote
-                    RemoteMergedCheckBox.IsChecked = config.RemoteMergedCheckBox;
-                    if (!string.IsNullOrWhiteSpace(config.RemoteMergedBranchValue))
+                    RemoteMergedCheckBox.IsChecked = config.RemoteMerged;
+                    if (!string.IsNullOrWhiteSpace(config.RemoteMergedBranch))
                     {
                         RemoteMergedComboBox.Items.Clear();
-                        RemoteMergedComboBox.Items.Add(config.RemoteMergedBranchValue);
+                        RemoteMergedComboBox.Items.Add(config.RemoteMergedBranch);
                         RemoteMergedComboBox.SelectedIndex = 0;
                     }
-                    RemoteMaxAgeCheckBox.IsChecked = config.RemoteMaxAgeCheckBox;
+                    RemoteMaxAgeCheckBox.IsChecked = config.RemoteMaxAge;
                     RemoteMaxAgeTextBox.Text = config.RemoteMaxAgeMonths.ToString();
-                    RemoteExcludedBranchesCheckBox.IsChecked = config.RemoteExcludedBranchesCheckBox;
-                    RemoteExcludedBranchesTextBox.Text = config.RemoteExcludedBranches;
+                    RemoteExcludedBranchesCheckBox.IsChecked = config.RemoteExcludedBranches;
+                    RemoteExcludedBranchesTextBox.Text = config.RemoteExcludedBranchesCSV;
                 }
             }
             catch (Exception ex)
@@ -315,7 +315,7 @@ namespace CSharp_GitBranchManager.View
                         ((IProgress<int>)progressReporter).Report(++currentBranchIndex);
                         TimeSpan age = currentDate - branch.Tip.Author.When.LocalDateTime;
 
-                        if (checkMaxAge && ((age.TotalDays / 30) < maxAgeMonths)) continue;
+                        if (checkMaxAge && age.TotalDays / 30 < maxAgeMonths) continue;
 
                         if (checkUnused && repo.Branches.Any(b => b.IsRemote && b.FriendlyName.Contains(branch.FriendlyName))) continue;
 
@@ -378,7 +378,7 @@ namespace CSharp_GitBranchManager.View
                         ((IProgress<int>)progressReporter).Report(++currentBranchIndex);
                         TimeSpan age = currentDate - branch.Tip.Author.When.LocalDateTime;
 
-                        if (checkMaxAge && (age.TotalDays / 30) < maxAgeMonths) continue;
+                        if (checkMaxAge && age.TotalDays / 30 < maxAgeMonths) continue;
                         if (checkMerged && !IsBranchMergedIntoMain(mainCommits, branch)) continue;
 
                         System.Windows.Application.Current.Dispatcher.Invoke(() =>
@@ -447,18 +447,18 @@ namespace CSharp_GitBranchManager.View
             AppConfiguration config = new()
             {
                 // General
-                RepositoryPath = repoPath,
+                GitRepositoryPath = repoPath,
                 // Local
-                LocalUnusedCheckBox = LocalUnusedCheckBox.IsChecked ?? false,
-                LocalMaxAgeCheckBox = LocalMaxAgeCheckBox.IsChecked ?? false,
+                LocalUnused = LocalUnusedCheckBox.IsChecked ?? false,
+                LocalMaxAge = LocalMaxAgeCheckBox.IsChecked ?? false,
                 LocalMaxAgeMonths = LocalMaxAgeMonths,
                 // Remote
-                RemoteMergedCheckBox = RemoteMergedCheckBox.IsChecked ?? false,
-                RemoteMergedBranchValue = RemoteMergedComboBox.Text,
-                RemoteMaxAgeCheckBox = RemoteMaxAgeCheckBox.IsChecked ?? false,
+                RemoteMerged = RemoteMergedCheckBox.IsChecked ?? false,
+                RemoteMergedBranch = RemoteMergedComboBox.Text,
+                RemoteMaxAge = RemoteMaxAgeCheckBox.IsChecked ?? false,
                 RemoteMaxAgeMonths = RemoteMaxAgeMonths,
-                RemoteExcludedBranchesCheckBox = RemoteExcludedBranchesCheckBox.IsChecked ?? false,
-                RemoteExcludedBranches = RemoteExcludedBranchesTextBox.Text
+                RemoteExcludedBranches = RemoteExcludedBranchesCheckBox.IsChecked ?? false,
+                RemoteExcludedBranchesCSV = RemoteExcludedBranchesTextBox.Text
             };
 
             try

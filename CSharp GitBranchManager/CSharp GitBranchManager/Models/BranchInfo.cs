@@ -1,6 +1,6 @@
 ﻿using CSharp_GitBranchManager.Utils;
 
-namespace CSharp_GitBranchManager.Model
+namespace CSharp_GitBranchManager.Models
 {
     public class BranchInfo : ANotifyPropertyChanged
     {
