@@ -257,7 +257,7 @@ namespace CSharp_GitBranchManager.View
                 if (!File.Exists(ConfigFilePath)) return;
 
                 string json = File.ReadAllText(ConfigFilePath);
-                AppConfig config = JsonSerializer.Deserialize<AppConfig>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                AppConfiguration config = JsonSerializer.Deserialize<AppConfiguration>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 if (config != null && !string.IsNullOrWhiteSpace(config.RepositoryPath))
                 {
                     // General
@@ -444,7 +444,7 @@ namespace CSharp_GitBranchManager.View
             string repoPath = GitRepoPathTextBox.Text.Trim();
             _ = int.TryParse(LocalMaxAgeTextBox.Text, out var LocalMaxAgeMonths);
             _ = int.TryParse(RemoteMaxAgeTextBox.Text, out var RemoteMaxAgeMonths);
-            AppConfig config = new()
+            AppConfiguration config = new()
             {
                 // General
                 RepositoryPath = repoPath,

@@ -45,7 +45,7 @@ namespace CSharp_GitBranchManager.ViewModel
             }
         }
 
-        public AppConfig Config { get; set; }
+        public AppConfiguration Config { get; set; }
 
         public ICommand DeleteSelectedCommand { get; set; }
 

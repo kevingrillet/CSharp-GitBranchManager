@@ -9,9 +9,10 @@ namespace CSharp_GitBranchManager.Model
     /// - Observable
     /// - MVVM
     /// </summary>
-    public class AppConfig
+    public class AppConfiguration
     {
         private static readonly char[] separator = [',', ';'];
+        public static string FilePath { get; } = "config.json";
         public bool LocalMaxAgeCheckBox { get; set; } = false;
         public int LocalMaxAgeMonths { get; set; } = 6;
         public bool LocalUnusedCheckBox { get; set; } = true;
