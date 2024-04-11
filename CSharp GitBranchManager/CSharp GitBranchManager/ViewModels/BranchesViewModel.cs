@@ -1,4 +1,5 @@
-﻿using CSharp_GitBranchManager.Models;
+﻿using CSharp_GitBranchManager.Entities;
+using CSharp_GitBranchManager.Models;
 using CSharp_GitBranchManager.Utils;
 using LibGit2Sharp;
 using System;
@@ -22,12 +23,6 @@ namespace CSharp_GitBranchManager.ViewModels
     /// - Sort
     /// - Export
     /// </summary>
-
-    public enum BranchType
-    {
-        Local = 0,
-        Remote = 1
-    }
 
     public class BranchesViewModel : ANotifyPropertyChanged
     {
