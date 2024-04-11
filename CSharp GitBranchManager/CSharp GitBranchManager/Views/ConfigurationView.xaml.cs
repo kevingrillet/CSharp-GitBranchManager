@@ -3,6 +3,7 @@ using LibGit2Sharp;
 using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Input;
 
 namespace CSharp_GitBranchManager.Views
 {
@@ -13,13 +14,21 @@ namespace CSharp_GitBranchManager.Views
         public ConfigurationView()
         {
             InitializeComponent();
+            LocalMaxAgeTextBox.PreviewTextInput += MaxAgeTextBox_PreviewTextInput;
+            RemoteMaxAgeTextBox.PreviewTextInput += MaxAgeTextBox_PreviewTextInput;
+
             ViewModel = new AppConfigurationViewModel();
             DataContext = ViewModel;
         }
 
+        private void MaxAgeTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !int.TryParse(e.Text, out _);
+        }
+
         private void ReloadRemoteBranches_Click(object sender, RoutedEventArgs e)
         {
-            using (var repo = new Repository(ViewModel.Configuration.GitRepositoryPath))
+            using (var repo = new Repository(GitRepositoryPathTextBox.Text))
             {
                 var branches = repo.Branches.Where(b => b.IsRemote).ToList();
 
@@ -47,7 +56,7 @@ namespace CSharp_GitBranchManager.Views
             DialogResult result = folderBrowserDialog.ShowDialog();
             if (result == DialogResult.OK)
             {
-                ViewModel.Configuration.GitRepositoryPath = folderBrowserDialog.SelectedPath;
+                GitRepositoryPathTextBox.Text = folderBrowserDialog.SelectedPath;
             }
         }
     }

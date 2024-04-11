@@ -4,12 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CSharp_GitBranchManager.Views"
-             xmlns:viewModels="clr-namespace:CSharp_GitBranchManager.ViewModels"
+             xmlns:vm="clr-namespace:CSharp_GitBranchManager.ViewModels"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     
     <UserControl.DataContext>
-        <viewModels:AppConfigurationViewModel />
+        <vm:AppConfigurationViewModel />
     </UserControl.DataContext>
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -26,7 +26,9 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <Label Content="Path to git repository" VerticalAlignment="Center" />
-                                <TextBox Grid.Column="1" VerticalAlignment="Center" Margin="0,0,5,0" Text="{Binding Configuration.GitRepositoryPath, Mode=TwoWay}"/>
+                                <TextBox Grid.Column="1" VerticalAlignment="Center" Margin="0,0,5,0"
+                                         x:Name="GitRepositoryPathTextBox"
+                                         Text="{Binding Configuration.GitRepositoryPath, Mode=TwoWay}"/>
                                 <Button  Grid.Column="2" VerticalAlignment="Center" Click="SelectRepositoryPath_Click">
                                     <Button.ToolTip>
                                         <ToolTip>Folder picker</ToolTip>
@@ -54,7 +56,9 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <CheckBox Grid.Column="0" VerticalAlignment="Center" IsChecked="{Binding Configuration.LocalMaxAge, Mode=TwoWay}">Max age (months)</CheckBox>
-                                <TextBox  Grid.Column="1"  VerticalAlignment="Center" Text="{Binding Configuration.LocalMaxAgeMonths, Mode=TwoWay}" />
+                                <TextBox  Grid.Column="1" VerticalAlignment="Center"
+                                          x:Name="LocalMaxAgeTextBox"
+                                          Text="{Binding Configuration.LocalMaxAgeMonths, Mode=TwoWay}" />
                             </Grid>
                         </StackPanel>
                     </StackPanel>
@@ -90,7 +94,9 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <CheckBox Grid.Column="0" VerticalAlignment="Center" IsChecked="{Binding Configuration.RemoteMaxAge, Mode=TwoWay}">Max age (months)</CheckBox>
-                                <TextBox  Grid.Column="1"  VerticalAlignment="Center" Text="{Binding Configuration.RemoteMaxAgeMonths, Mode=TwoWay}"/>
+                                <TextBox  Grid.Column="1" VerticalAlignment="Center" 
+                                          x:Name="RemoteMaxAgeTextBox"
+                                          Text="{Binding Configuration.RemoteMaxAgeMonths, Mode=TwoWay}"/>
                             </Grid>
                             <Grid Margin="0,0,0,5">
                                 <Grid.ColumnDefinitions>
