@@ -126,7 +126,7 @@ namespace CSharp_GitBranchManager.Views
         {
             if (e.Key == Key.Space)
             {
-                //ToggleSelectedRowsCheckState(LocalBranchesGrid);
+                ToggleSelectedRowsCheckState(BranchesGrid);
             }
         }
 
