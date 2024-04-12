@@ -35,7 +35,8 @@ namespace CSharp_GitBranchManager
         {
             InitializeComponent();
             LoadConfig();
-            RemoteMaxAgeTextBox.PreviewTextInput += MaxRemoteAgeTextBox_PreviewTextInput;
+            LocalMaxAgeTextBox.PreviewTextInput += MaxAgeTextBoxes_PreviewTextInput;
+            RemoteMaxAgeTextBox.PreviewTextInput += MaxAgeTextBoxes_PreviewTextInput;
             MainTabControl.SelectionChanged += (sender, e) => UpdateStatusBar();
 
             LocalBranches = [];
@@ -398,7 +399,7 @@ namespace CSharp_GitBranchManager
             }
         }
 
-        private void MaxRemoteAgeTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        private void MaxAgeTextBoxes_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !int.TryParse(e.Text, out _);
         }
