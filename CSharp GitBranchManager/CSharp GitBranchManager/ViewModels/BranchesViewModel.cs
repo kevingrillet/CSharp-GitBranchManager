@@ -14,23 +14,21 @@ using MessageBox = System.Windows.MessageBox;
 
 namespace CSharp_GitBranchManager.ViewModels
 {
-    /// <summary>
-    /// TODO:
-    /// - Test
-    /// - Filter working?
-    /// - Config
-    /// - Select
-    /// - Toogle
-    /// - Sort
-    /// - Export
-    /// </summary>
-
     public class BranchesViewModel : ANotifyPropertyChanged
     {
-        public readonly ListCollectionView branchesView;
         private ObservableCollection<BranchInfo> _branches;
 
+        #region Commands
+
         public ICommand ApplyFilterCommand { get => new RelayCommand(ApplyFilter); }
+        public ICommand DeleteSelectedCommand { get => new RelayCommand(DeleteSelected); }
+        public ICommand LoadCommand { get => new RelayCommand(Load); }
+
+        #endregion Commands
+
+        #region Properties
+
+        public readonly ListCollectionView branchesView;
 
         public ObservableCollection<BranchInfo> Branches
         {
@@ -43,17 +41,24 @@ namespace CSharp_GitBranchManager.ViewModels
         }
 
         public AppConfiguration Config { get; set; }
-
-        public ICommand DeleteSelectedCommand { get => new RelayCommand(DeleteSelected); }
-
-        public ICommand LoadCommand { get => new RelayCommand(Load); }
         public BranchType Type { get; set; }
 
-        public BranchesViewModel(BranchType brancheType)
+        #endregion Properties
+
+        public BranchesViewModel()
         {
-            Type = brancheType;
             Branches = new ObservableCollection<BranchInfo>();
             branchesView = (ListCollectionView)CollectionViewSource.GetDefaultView(Branches);
+        }
+
+        public BranchesViewModel(BranchType branchType) : this()
+        {
+            Type = branchType;
+        }
+
+        public BranchesViewModel(BranchType branchType, AppConfiguration config) : this(branchType)
+        {
+            Config = config;
         }
 
         private static bool CheckIsBranchMergedIntoMain(HashSet<Commit> mainCommits, Branch branch)
@@ -124,7 +129,6 @@ namespace CSharp_GitBranchManager.ViewModels
             using (var repo = new Repository(Config.GitRepositoryPath))
             {
                 Branches.Clear();
-                //skipUpdateStatusBar = true;
 
                 var mainCommits = Type == BranchType.Remote ? GetMainCommits(repo) : [];
                 var excludedBranches = Type == BranchType.Remote ? Config.GetListRemoteExcludedBranches() : [];
@@ -141,18 +145,10 @@ namespace CSharp_GitBranchManager.ViewModels
                 var checkUnused = Type == BranchType.Local && Config.LocalUnused;
                 var checkMerged = Type == BranchType.Remote && Config.RemoteMerged;
 
-                //var currentBranchIndex = 0;
-                //var progressReporter = new Progress<int>(value =>
-                //{
-                //    UpdateStatusBar(value, branches.Count);
-                //});
-
                 await Task.Run(() =>
                 {
                     foreach (var branch in branches)
                     {
-                        //((IProgress<int>)progressReporter).Report(++currentBranchIndex);
-
                         TimeSpan age = currentDate - branch.Tip.Author.When.LocalDateTime;
                         if (checkMaxAge && ((age.TotalDays / 30) < maxAgeMonths)) continue;
                         if (checkUnused && repo.Branches.Any(b => b.IsRemote && b.FriendlyName.Contains(branch.FriendlyName))) continue;
@@ -169,8 +165,6 @@ namespace CSharp_GitBranchManager.ViewModels
                         });
                     }
                 });
-                //skipUpdateStatusBar = false;
-                //UpdateStatusBar();
             }
         }
     }

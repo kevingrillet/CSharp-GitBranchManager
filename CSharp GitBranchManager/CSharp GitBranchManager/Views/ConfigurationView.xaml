@@ -29,7 +29,7 @@
                                 <TextBox Grid.Column="1" VerticalAlignment="Center" Margin="0,0,5,0"
                                          x:Name="GitRepositoryPathTextBox"
                                          Text="{Binding Configuration.GitRepositoryPath, Mode=TwoWay}"/>
-                                <Button  Grid.Column="2" VerticalAlignment="Center" Click="SelectRepositoryPath_Click">
+                                <Button  Grid.Column="2" VerticalAlignment="Center" Command="{Binding SelectRepositoryPathCommand}">
                                     <Button.ToolTip>
                                         <ToolTip>Folder picker</ToolTip>
                                     </Button.ToolTip>
@@ -77,11 +77,11 @@
                                 <CheckBox Grid.Column="0" VerticalAlignment="Center" IsChecked="{Binding Configuration.RemoteMerged, Mode=TwoWay}">Merged</CheckBox>
                                 <ComboBox Grid.Column="1" VerticalAlignment="Center" Margin="0,0,5,0"
                                           SelectedItem="{Binding Configuration.RemoteMergedBranch, Mode=TwoWay}"
+                                          ItemsSource="{Binding RemoteBranches}"
                                           x:Name="RemoteMergedComboBox"
                                           >
-                                    <ComboBoxItem IsSelected="True">master</ComboBoxItem>
                                 </ComboBox>
-                                <Button  Grid.Column="2" VerticalAlignment="Center" Click="ReloadRemoteBranches_Click">
+                                <Button  Grid.Column="2" VerticalAlignment="Center" Command="{Binding ReleadRemoteBranchesCommand}">
                                     <Button.ToolTip>
                                         <ToolTip>Refresh list</ToolTip>
                                     </Button.ToolTip>
@@ -109,7 +109,7 @@
                         </StackPanel>
                     </StackPanel>
                 </Border>
-                <Button Content="Save" Click="SaveConfig_Click"  Margin="0,0,0,0" />
+                <Button Content="Save" Margin="0,0,0,0" Command="{Binding SaveCommand}"/>
             </StackPanel>
         </ScrollViewer>
     </Grid>

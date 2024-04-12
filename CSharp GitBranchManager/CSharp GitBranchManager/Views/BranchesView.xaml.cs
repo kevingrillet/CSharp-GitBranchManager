@@ -32,10 +32,9 @@ namespace CSharp_GitBranchManager.Views
         {
             InitializeComponent();
 
-            ViewModel = new BranchesViewModel(Type);
+            ViewModel = (BranchesViewModel)DataContext;
 
             BranchesGrid.ItemsSource = ViewModel.Branches;
-            //ViewModel.Branches.CollectionChanged += (sender, e) => UpdateStatusBar();
             SetupSorting(ViewModel.branchesView, BranchesGrid);
 
             filterTimer = new DispatcherTimer
@@ -62,7 +61,7 @@ namespace CSharp_GitBranchManager.Views
                     FileName = $"Export {branchType} Names"
                 };
 
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                if (dialog.ShowDialog() == DialogResult.OK)
                 {
                     string filePath = dialog.FileName;
                     File.WriteAllLines(filePath, branchNames);
@@ -144,7 +143,6 @@ namespace CSharp_GitBranchManager.Views
         {
             filterTimer.Stop();
             //ApplyLocalBranchesFilter();
-            //UpdateStatusBar();
         }
 
         private void LoadBranches_Click(object sender, RoutedEventArgs e)
