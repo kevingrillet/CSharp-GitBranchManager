@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
+using MessageBox = System.Windows.MessageBox;
 
 namespace CSharp_GitBranchManager.ViewModels
 {
@@ -28,7 +29,8 @@ namespace CSharp_GitBranchManager.ViewModels
     {
         public readonly ListCollectionView branchesView;
         private ObservableCollection<BranchInfo> _branches;
-        private string _filterText;
+
+        public ICommand ApplyFilterCommand { get => new RelayCommand(ApplyFilter); }
 
         public ObservableCollection<BranchInfo> Branches
         {
@@ -42,28 +44,16 @@ namespace CSharp_GitBranchManager.ViewModels
 
         public AppConfiguration Config { get; set; }
 
-        public ICommand DeleteSelectedCommand { get; set; }
+        public ICommand DeleteSelectedCommand { get => new RelayCommand(DeleteSelected); }
 
-        public string FilterText
-        {
-            get { return _filterText; }
-            set
-            {
-                _filterText = value;
-                ApplyFilter();
-            }
-        }
-
-        public ICommand LoadCommand { get; set; }
-
+        public ICommand LoadCommand { get => new RelayCommand(Load); }
         public BranchType Type { get; set; }
 
         public BranchesViewModel(BranchType brancheType)
         {
             Type = brancheType;
             Branches = new ObservableCollection<BranchInfo>();
-            DeleteSelectedCommand = new RelayCommand(DeleteSelected);
-            LoadCommand = new RelayCommand(Load);
+            branchesView = (ListCollectionView)CollectionViewSource.GetDefaultView(Branches);
         }
 
         private static bool CheckIsBranchMergedIntoMain(HashSet<Commit> mainCommits, Branch branch)
@@ -75,14 +65,15 @@ namespace CSharp_GitBranchManager.ViewModels
             return true;
         }
 
-        private void ApplyFilter()
+        private void ApplyFilter(object parameter)
         {
+            var filter = parameter as string;
             branchesView.Filter = item =>
             {
-                if (string.IsNullOrEmpty(FilterText))
+                if (string.IsNullOrEmpty(filter))
                     return true;
 
-                return item is BranchInfo branchInfo && branchInfo.Name.Contains(FilterText, StringComparison.OrdinalIgnoreCase);
+                return item is BranchInfo branchInfo && branchInfo.Name.Contains(filter, StringComparison.OrdinalIgnoreCase);
             };
         }
 
@@ -133,6 +124,7 @@ namespace CSharp_GitBranchManager.ViewModels
             using (var repo = new Repository(Config.GitRepositoryPath))
             {
                 Branches.Clear();
+                //skipUpdateStatusBar = true;
 
                 var mainCommits = Type == BranchType.Remote ? GetMainCommits(repo) : [];
                 var excludedBranches = Type == BranchType.Remote ? Config.GetListRemoteExcludedBranches() : [];
@@ -149,10 +141,18 @@ namespace CSharp_GitBranchManager.ViewModels
                 var checkUnused = Type == BranchType.Local && Config.LocalUnused;
                 var checkMerged = Type == BranchType.Remote && Config.RemoteMerged;
 
+                //var currentBranchIndex = 0;
+                //var progressReporter = new Progress<int>(value =>
+                //{
+                //    UpdateStatusBar(value, branches.Count);
+                //});
+
                 await Task.Run(() =>
                 {
                     foreach (var branch in branches)
                     {
+                        //((IProgress<int>)progressReporter).Report(++currentBranchIndex);
+
                         TimeSpan age = currentDate - branch.Tip.Author.When.LocalDateTime;
                         if (checkMaxAge && ((age.TotalDays / 30) < maxAgeMonths)) continue;
                         if (checkUnused && repo.Branches.Any(b => b.IsRemote && b.FriendlyName.Contains(branch.FriendlyName))) continue;
@@ -169,6 +169,8 @@ namespace CSharp_GitBranchManager.ViewModels
                         });
                     }
                 });
+                //skipUpdateStatusBar = false;
+                //UpdateStatusBar();
             }
         }
     }
