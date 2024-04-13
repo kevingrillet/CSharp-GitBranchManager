@@ -1,14 +1,13 @@
 ﻿using CSharp_GitBranchManager.Utils;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace CSharp_GitBranchManager.Models
 {
     public class AppConfiguration : ANotifyPropertyChanged
     {
-        private static readonly char[] separator = [',', ';'];
-        private string _gitRepositoryPath;
+        public static readonly string FilePath = "config.json";
+
+        private string _gitRepositoryPath = string.Empty;
         private bool _localMaxAge = false;
         private int _localMaxAgeMonths = 6;
         private bool _localUnused = true;
@@ -18,144 +17,70 @@ namespace CSharp_GitBranchManager.Models
         private int _remoteMaxAgeMonths = 6;
         private bool _remoteMerged = true;
         private string _remoteMergedBranch = "master";
-        public static string FilePath { get; } = "config.json";
 
         public string GitRepositoryPath
         {
-            get { return _gitRepositoryPath; }
-            set
-            {
-                if (_gitRepositoryPath != value)
-                {
-                    _gitRepositoryPath = value;
-                    NotifyPropertyChanged();
-                }
-            }
+            get => _gitRepositoryPath;
+            set => SetField(ref _gitRepositoryPath, value);
         }
 
         public bool LocalMaxAge
         {
-            get { return _localMaxAge; }
-            set
-            {
-                if (_localMaxAge != value)
-                {
-                    _localMaxAge = value;
-                    NotifyPropertyChanged();
-                }
-            }
+            get => _localMaxAge;
+            set => SetField(ref _localMaxAge, value);
         }
 
         public int LocalMaxAgeMonths
         {
-            get { return _localMaxAgeMonths; }
-            set
-            {
-                if (_localMaxAgeMonths != value)
-                {
-                    _localMaxAgeMonths = value;
-                    NotifyPropertyChanged();
-                }
-            }
+            get => _localMaxAgeMonths;
+            set => SetField(ref _localMaxAgeMonths, value);
         }
 
         public bool LocalUnused
         {
-            get { return _localUnused; }
-            set
-            {
-                if (_localUnused != value)
-                {
-                    _localUnused = value;
-                    NotifyPropertyChanged();
-                }
-            }
+            get => _localUnused;
+            set => SetField(ref _localUnused, value);
         }
 
         public bool RemoteExcludedBranches
         {
-            get { return _remoteExcludedBranches; }
-            set
-            {
-                if (_remoteExcludedBranches != value)
-                {
-                    _remoteExcludedBranches = value;
-                    NotifyPropertyChanged();
-                }
-            }
+            get => _remoteExcludedBranches;
+            set => SetField(ref _remoteExcludedBranches, value);
         }
 
         public string RemoteExcludedBranchesCSV
         {
-            get { return _remoteExcludedBranchesCSV; }
-            set
-            {
-                if (_remoteExcludedBranchesCSV != value)
-                {
-                    _remoteExcludedBranchesCSV = value;
-                    NotifyPropertyChanged();
-                }
-            }
+            get => _remoteExcludedBranchesCSV;
+            set => SetField(ref _remoteExcludedBranchesCSV, value);
         }
 
         public bool RemoteMaxAge
         {
-            get { return _remoteMaxAge; }
-            set
-            {
-                if (_remoteMaxAge != value)
-                {
-                    _remoteMaxAge = value;
-                    NotifyPropertyChanged();
-                }
-            }
+            get => _remoteMaxAge;
+            set => SetField(ref _remoteMaxAge, value);
         }
 
         public int RemoteMaxAgeMonths
         {
-            get { return _remoteMaxAgeMonths; }
-            set
-            {
-                if (_remoteMaxAgeMonths != value)
-                {
-                    _remoteMaxAgeMonths = value;
-                    NotifyPropertyChanged();
-                }
-            }
+            get => _remoteMaxAgeMonths;
+            set => SetField(ref _remoteMaxAgeMonths, value);
         }
 
         public bool RemoteMerged
         {
-            get { return _remoteMerged; }
-            set
-            {
-                if (_remoteMerged != value)
-                {
-                    _remoteMerged = value;
-                    NotifyPropertyChanged();
-                }
-            }
+            get => _remoteMerged;
+            set => SetField(ref _remoteMerged, value);
         }
 
         public string RemoteMergedBranch
         {
-            get { return _remoteMergedBranch; }
-            set
-            {
-                if (_remoteMergedBranch != value)
-                {
-                    _remoteMergedBranch = value;
-                    NotifyPropertyChanged();
-                }
-            }
+            get => _remoteMergedBranch;
+            set => SetField(ref _remoteMergedBranch, value);
         }
 
         public List<string> GetListRemoteExcludedBranches()
         {
-            return RemoteExcludedBranchesCSV
-                .Split(separator, StringSplitOptions.RemoveEmptyEntries)
-                .Select(branch => branch.Trim())
-                .ToList();
+            return RemoteExcludedBranchesCSV.CSVSplitAndTrim();
         }
     }
 }

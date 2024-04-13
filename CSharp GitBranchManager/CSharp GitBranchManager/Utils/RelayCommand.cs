@@ -4,10 +4,10 @@ using System.Windows.Input;
 
 namespace CSharp_GitBranchManager.Utils
 {
-    public class RelayCommand : ICommand
+    public class RelayCommand<T> : ICommand
     {
-        private readonly Predicate<object> _canExecute;
-        private readonly Action<object> _execute;
+        private readonly Func<T, bool> _canExecute;
+        private readonly Action<T> _execute;
 
         public event EventHandler CanExecuteChanged
         {
@@ -15,11 +15,11 @@ namespace CSharp_GitBranchManager.Utils
             remove { CommandManager.RequerySuggested -= value; }
         }
 
-        public RelayCommand(Action<object> execute) : this(execute, null)
+        public RelayCommand(Action<T> execute) : this(execute, null)
         {
         }
 
-        public RelayCommand(Action<object> execute, Predicate<object> canExecute)
+        public RelayCommand(Action<T> execute, Func<T, bool> canExecute)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
@@ -28,12 +28,21 @@ namespace CSharp_GitBranchManager.Utils
         [DebuggerStepThrough]
         public bool CanExecute(object parameter)
         {
-            return _canExecute == null || _canExecute(parameter);
+            if (parameter == null)
+                return _canExecute == null || _canExecute(default(T));
+
+            if (parameter is T typedParameter)
+                return _canExecute == null || _canExecute(typedParameter);
+
+            return false;
         }
 
         public void Execute(object parameter)
         {
-            _execute(parameter);
+            if (parameter is T typedParameter)
+                _execute(typedParameter);
+            else
+                throw new ArgumentException($"The parameter must be of type {typeof(T).Name}", nameof(parameter));
         }
     }
 }

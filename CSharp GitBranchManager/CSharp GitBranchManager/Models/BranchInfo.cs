@@ -11,54 +11,26 @@ namespace CSharp_GitBranchManager.Models
 
         public bool IsSelected
         {
-            get { return _isSelected; }
-            set
-            {
-                if (_isSelected != value)
-                {
-                    _isSelected = value;
-                    NotifyPropertyChanged();
-                }
-            }
+            get => _isSelected;
+            set => SetField(ref _isSelected, value);
         }
 
         public string LastCommitBy
         {
-            get { return _lastCommitBy; }
-            set
-            {
-                if (_lastCommitBy != value)
-                {
-                    _lastCommitBy = value;
-                    NotifyPropertyChanged();
-                }
-            }
+            get => _lastCommitBy;
+            set => SetField(ref _lastCommitBy, value);
         }
 
         public string LastCommitDate
         {
-            get { return _lastCommitDate; }
-            set
-            {
-                if (_lastCommitDate != value)
-                {
-                    _lastCommitDate = value;
-                    NotifyPropertyChanged();
-                }
-            }
+            get => _lastCommitDate;
+            set => SetField(ref _lastCommitDate, value);
         }
 
         public string Name
         {
-            get { return _name; }
-            set
-            {
-                if (_name != value)
-                {
-                    _name = value;
-                    NotifyPropertyChanged();
-                }
-            }
+            get => _name;
+            set => SetField(ref _name, value);
         }
     }
 }

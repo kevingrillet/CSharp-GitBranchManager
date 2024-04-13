@@ -13,7 +13,22 @@ using MessageBox = System.Windows.MessageBox;
 
 namespace CSharp_GitBranchManager.ViewModels
 {
-    public class AppConfigurationViewModel : ANotifyPropertyChanged
+    public interface IAppConfigurationViewModel
+    {
+        AppConfiguration Configuration { get; set; }
+        ObservableCollection<string> RemoteBranches { get; }
+
+        #region Commands
+
+        ICommand ReleadRemoteBranchesCommand { get; }
+        ICommand SaveCommand { get; }
+        ICommand SelectRepositoryPathCommand { get; }
+        ICommand ValidateTextInputCommand { get; }
+
+        #endregion Commands
+    }
+
+    public class AppConfigurationViewModel : ANotifyPropertyChanged, IAppConfigurationViewModel
     {
         private readonly JsonSerializerOptions _loadOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         private readonly ObservableCollection<string> _remoteBranches;
@@ -22,9 +37,10 @@ namespace CSharp_GitBranchManager.ViewModels
 
         #region Commands
 
-        public ICommand ReleadRemoteBranchesCommand { get => new RelayCommand(ReleadRemoteBranches); }
-        public ICommand SaveCommand { get => new RelayCommand(Save); }
-        public ICommand SelectRepositoryPathCommand { get => new RelayCommand(SelectRepositoryPath); }
+        public ICommand ReleadRemoteBranchesCommand { get => new RelayCommand<object>(ReleadRemoteBranches); }
+        public ICommand SaveCommand { get => new RelayCommand<object>(Save); }
+        public ICommand SelectRepositoryPathCommand { get => new RelayCommand<object>(SelectRepositoryPath); }
+        public ICommand ValidateTextInputCommand { get => new RelayCommand<string>(ValidateTextInput); }
 
         #endregion Commands
 
@@ -32,12 +48,8 @@ namespace CSharp_GitBranchManager.ViewModels
 
         public AppConfiguration Configuration
         {
-            get { return _configuration; }
-            set
-            {
-                _configuration = value;
-                NotifyPropertyChanged();
-            }
+            get => _configuration;
+            set => SetField(ref _configuration, value);
         }
 
         public ObservableCollection<string> RemoteBranches
@@ -48,7 +60,6 @@ namespace CSharp_GitBranchManager.ViewModels
         #endregion Properties
 
         public AppConfigurationViewModel()
-
         {
             _remoteBranches = new ObservableCollection<string>() { "master" };
             Load();
@@ -113,6 +124,22 @@ namespace CSharp_GitBranchManager.ViewModels
             if (result == DialogResult.OK)
             {
                 Configuration.GitRepositoryPath = folderBrowserDialog.SelectedPath;
+                OnPropertyChanged(nameof(Configuration));
+            }
+        }
+
+        private void ValidateTextInput(string input)
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                foreach (char c in input)
+                {
+                    if (!char.IsDigit(c))
+                    {
+                        MessageBox.Show("Only numeric characters are allowed.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                }
             }
         }
     }

@@ -57,8 +57,12 @@
                                 </Grid.ColumnDefinitions>
                                 <CheckBox Grid.Column="0" VerticalAlignment="Center" IsChecked="{Binding Configuration.LocalMaxAge, Mode=TwoWay}">Max age (months)</CheckBox>
                                 <TextBox  Grid.Column="1" VerticalAlignment="Center"
-                                          x:Name="LocalMaxAgeTextBox"
-                                          Text="{Binding Configuration.LocalMaxAgeMonths, Mode=TwoWay}" />
+                                          Text="{Binding Configuration.LocalMaxAgeMonths, Mode=TwoWay}" >
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding ValidateTextInputCommand}"
+                                                    CommandParameter="{Binding Text, ElementName=LocalMaxAgeTextBox}" />
+                                    </TextBox.InputBindings>
+                                </TextBox>
                             </Grid>
                         </StackPanel>
                     </StackPanel>
@@ -95,8 +99,12 @@
                                 </Grid.ColumnDefinitions>
                                 <CheckBox Grid.Column="0" VerticalAlignment="Center" IsChecked="{Binding Configuration.RemoteMaxAge, Mode=TwoWay}">Max age (months)</CheckBox>
                                 <TextBox  Grid.Column="1" VerticalAlignment="Center" 
-                                          x:Name="RemoteMaxAgeTextBox"
-                                          Text="{Binding Configuration.RemoteMaxAgeMonths, Mode=TwoWay}"/>
+                                          Text="{Binding Configuration.RemoteMaxAgeMonths, Mode=TwoWay}" >
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding ValidateTextInputCommand}"
+                                                    CommandParameter="{Binding Text, ElementName=RemoteMaxAgeMonths}" />
+                                    </TextBox.InputBindings>
+                                </TextBox>
                             </Grid>
                             <Grid Margin="0,0,0,5">
                                 <Grid.ColumnDefinitions>

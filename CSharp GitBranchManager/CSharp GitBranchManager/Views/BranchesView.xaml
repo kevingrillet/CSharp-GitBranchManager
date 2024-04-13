@@ -11,6 +11,7 @@
     <UserControl.DataContext>
         <vm:BranchesViewModel />
     </UserControl.DataContext>
+
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Orientation="Vertical">
@@ -19,8 +20,8 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" VerticalAlignment="Center" Content="Load obsolete branches" Click="LoadBranches_Click" />
-                    <Button Grid.Column="1" VerticalAlignment="Center" Content="Delete selected branches" Click="DeleteSelectedBranches_Click" />
+                    <Button Grid.Column="0" VerticalAlignment="Center" Content="Load obsolete branches" Command="{Binding LoadCommand}" />
+                    <Button Grid.Column="1" VerticalAlignment="Center" Content="Delete selected branches" Command="{Binding DeleteSelectedCommand}" />
                 </Grid>
                 <Grid Margin="5,0,5,0">
                     <Grid.ColumnDefinitions>
@@ -29,20 +30,15 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" VerticalAlignment="Center" Content="Filter" />
-                    <TextBox Grid.Column="1" VerticalAlignment="Center" Width="Auto" x:Name="FilterTextBox" />
-                    <Button Grid.Column="2" VerticalAlignment="Center" Margin="5,0,0,0" Click="ExportBranches_Click" >
-                        <Button.ToolTip>
-                            <ToolTip>Export</ToolTip>
-                        </Button.ToolTip>
-                        <Image Source="/Icons/export.png" Width="20" Height="20" />
-                    </Button>
+                    <TextBox Grid.Column="1" VerticalAlignment="Center" Width="Auto" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" />
+                    <Button Grid.Column="2" VerticalAlignment="Center" Margin="5,0,0,0" Content="Export" Command="{Binding ExportCommand}" />
                 </Grid>
-                <DataGrid x:Name="BranchesGrid" KeyDown="BranchesGrid_KeyDown" AutoGenerateColumns="False" Margin="5,0,5,0" SelectionMode="Extended" CanUserAddRows="False" SelectionUnit="FullRow">
+                <DataGrid x:Name="BranchesGrid" ItemsSource="{Binding Branches}" AutoGenerateColumns="False" Margin="5,0,5,0" SelectionMode="Extended" CanUserAddRows="False" SelectionUnit="FullRow">
                     <DataGrid.Columns>
-                        <DataGridCheckBoxColumn Header="Selection" Binding="{Binding IsSelected}" SortMemberPath="IsSelected" />
-                        <DataGridTextColumn Header="Last commit date" Binding="{Binding LastCommitDate}" SortMemberPath="LastCommitDate" IsReadOnly="True" Width="Auto" />
-                        <DataGridTextColumn Header="Last commit by" Binding="{Binding LastCommitBy}" SortMemberPath="LastCommitBy" IsReadOnly="True" Width="Auto" />
-                        <DataGridTextColumn Header="Branch name" Binding="{Binding Name}" SortMemberPath="Name" IsReadOnly="True" Width="*" />
+                        <DataGridCheckBoxColumn Header="Selection" Binding="{Binding IsSelected}" />
+                        <DataGridTextColumn Header="Last commit date" Binding="{Binding LastCommitDate}" IsReadOnly="True" Width="Auto" />
+                        <DataGridTextColumn Header="Last commit by" Binding="{Binding LastCommitBy}" IsReadOnly="True" Width="Auto" />
+                        <DataGridTextColumn Header="Branch name" Binding="{Binding Name}" IsReadOnly="True" Width="*" />
                     </DataGrid.Columns>
                 </DataGrid>
             </StackPanel>
