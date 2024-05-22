@@ -12,8 +12,8 @@ namespace CSharp_GitBranchManager.ViewModels
         public MainViewModel()
         {
             ConfigurationViewModel = new AppConfigurationViewModel();
-            LocalBranchesViewModel = new BranchesViewModel(BranchType.Local, ConfigurationViewModel.Configuration);
-            RemoteBranchesViewModel = new BranchesViewModel(BranchType.Remote, ConfigurationViewModel.Configuration);
+            LocalBranchesViewModel = new BranchesViewModel(BranchType.Local/*, ConfigurationViewModel.Configuration*/);
+            RemoteBranchesViewModel = new BranchesViewModel(BranchType.Remote/*, ConfigurationViewModel.Configuration*/);
         }
     }
 }

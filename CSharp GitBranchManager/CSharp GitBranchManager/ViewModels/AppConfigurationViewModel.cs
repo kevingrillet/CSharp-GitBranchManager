@@ -37,10 +37,10 @@ namespace CSharp_GitBranchManager.ViewModels
 
         #region Commands
 
-        public ICommand ReleadRemoteBranchesCommand { get => new RelayCommand<object>(ReleadRemoteBranches); }
-        public ICommand SaveCommand { get => new RelayCommand<object>(Save); }
-        public ICommand SelectRepositoryPathCommand { get => new RelayCommand<object>(SelectRepositoryPath); }
-        public ICommand ValidateTextInputCommand { get => new RelayCommand<string>(ValidateTextInput); }
+        public ICommand ReleadRemoteBranchesCommand => new RelayCommand<object>(ReleadRemoteBranches);
+        public ICommand SaveCommand => new RelayCommand<object>(Save);
+        public ICommand SelectRepositoryPathCommand => new RelayCommand<object>(SelectRepositoryPath);
+        public ICommand ValidateTextInputCommand => new RelayCommand<string>(ValidateTextInput);
 
         #endregion Commands
 

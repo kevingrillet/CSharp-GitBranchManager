@@ -1,7 +1,7 @@
 ﻿using CSharp_GitBranchManager.ViewModels;
 using System.Windows;
 
-namespace CSharp_GitBranchManager.Views
+namespace CSharp_GitBranchManager
 {
     public partial class MainWindow : Window
     {

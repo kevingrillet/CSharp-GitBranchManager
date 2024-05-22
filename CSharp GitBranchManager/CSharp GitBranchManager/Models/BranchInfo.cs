@@ -4,16 +4,17 @@ namespace CSharp_GitBranchManager.Models
 {
     public class BranchInfo : ANotifyPropertyChanged
     {
-        private bool _isSelected;
+        private bool _isChecked;
         private string _lastCommitBy;
         private string _lastCommitDate;
         private string _name;
 
-        public bool IsSelected
+        public bool IsChecked
         {
-            get => _isSelected;
-            set => SetField(ref _isSelected, value);
+            get => _isChecked;
+            set => SetField(ref _isChecked, value);
         }
+
 
         public string LastCommitBy
         {

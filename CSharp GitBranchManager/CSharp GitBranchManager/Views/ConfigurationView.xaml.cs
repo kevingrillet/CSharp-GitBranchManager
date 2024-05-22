@@ -1,6 +1,8 @@
-﻿namespace CSharp_GitBranchManager.Views
+﻿using System.Windows.Controls;
+
+namespace CSharp_GitBranchManager.Views
 {
-    public partial class ConfigurationView : System.Windows.Controls.UserControl
+    public partial class ConfigurationView : UserControl
     {
         public ConfigurationView()
         {

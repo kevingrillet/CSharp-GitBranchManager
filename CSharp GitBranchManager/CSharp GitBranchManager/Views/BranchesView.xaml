@@ -13,15 +13,19 @@
     </UserControl.DataContext>
 
     <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
             <StackPanel Orientation="Vertical">
                 <Grid Margin="5,5,5,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" VerticalAlignment="Center" Content="Load obsolete branches" Command="{Binding LoadCommand}" />
-                    <Button Grid.Column="1" VerticalAlignment="Center" Content="Delete selected branches" Command="{Binding DeleteSelectedCommand}" />
+                    <Button Grid.Column="0" VerticalAlignment="Center" Content="Load obsolete branches" Command="{Binding LoadGridCommand}" />
+                    <Button Grid.Column="1" VerticalAlignment="Center" Content="Delete checked branches" Command="{Binding DeleteCheckedCommand}" />
                 </Grid>
                 <Grid Margin="5,0,5,0">
                     <Grid.ColumnDefinitions>
@@ -33,15 +37,27 @@
                     <TextBox Grid.Column="1" VerticalAlignment="Center" Width="Auto" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" />
                     <Button Grid.Column="2" VerticalAlignment="Center" Margin="5,0,0,0" Content="Export" Command="{Binding ExportCommand}" />
                 </Grid>
-                <DataGrid x:Name="BranchesGrid" ItemsSource="{Binding Branches}" AutoGenerateColumns="False" Margin="5,0,5,0" SelectionMode="Extended" CanUserAddRows="False" SelectionUnit="FullRow">
+                <DataGrid ItemsSource="{Binding Branches}" AutoGenerateColumns="False" Margin="5,0,5,0" SelectionMode="Extended" CanUserAddRows="False" SelectionUnit="FullRow">
                     <DataGrid.Columns>
-                        <DataGridCheckBoxColumn Header="Selection" Binding="{Binding IsSelected}" />
-                        <DataGridTextColumn Header="Last commit date" Binding="{Binding LastCommitDate}" IsReadOnly="True" Width="Auto" />
-                        <DataGridTextColumn Header="Last commit by" Binding="{Binding LastCommitBy}" IsReadOnly="True" Width="Auto" />
-                        <DataGridTextColumn Header="Branch name" Binding="{Binding Name}" IsReadOnly="True" Width="*" />
+                        <DataGridCheckBoxColumn Header="" Binding="{Binding IsChecked}" SortMemberPath="IsChecked" />
+                        <DataGridTextColumn IsReadOnly="True" Header="Last commit date" Binding="{Binding LastCommitDate}" SortMemberPath="LastCommitDate" />
+                        <DataGridTextColumn IsReadOnly="True" Header="Last commit by" Binding="{Binding LastCommitBy}" SortMemberPath="LastCommitBy" />
+                        <DataGridTextColumn IsReadOnly="True" Header="Branch name" Binding="{Binding Name}" SortMemberPath="Name"  Width="*" />
                     </DataGrid.Columns>
                 </DataGrid>
             </StackPanel>
         </ScrollViewer>
+        
+        <StatusBar Grid.Row="1">
+            <StatusBarItem>
+                <ProgressBar x:Name="MainProgressBar"
+                     Height="20" VerticalAlignment="Center"
+                     Minimum="0" Maximum="100" Value="0"
+                     Width="250" />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock x:Name="StatusItem" Text="Checked: 0; Filtered: 0; Total: 0" />
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </UserControl>
