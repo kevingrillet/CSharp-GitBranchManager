@@ -215,6 +215,11 @@ namespace CSharp_GitBranchManager
                     {
                         repo.Branches.Remove(branch);
                         RemoteBranches.Remove(branchInfo);
+
+                        var remote = repo.Network.Remotes[branch.RemoteName];
+                        var pushRefSpec = $":refs/heads/{branch.FriendlyName}";
+
+                        repo.Network.Push(remote, pushRefSpec, new PushOptions());
                     }
                 }
             }
