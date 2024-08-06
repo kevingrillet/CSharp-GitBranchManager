@@ -1,4 +1,4 @@
-﻿using CSharp_GitBranchManager.Entities;
+﻿using CSharp_GitBranchManager.Models;
 using CSharp_GitBranchManager.Utils;
 
 namespace CSharp_GitBranchManager.ViewModels
@@ -11,9 +11,10 @@ namespace CSharp_GitBranchManager.ViewModels
 
         public MainViewModel()
         {
-            ConfigurationViewModel = new AppConfigurationViewModel();
-            LocalBranchesViewModel = new BranchesViewModel(BranchType.Local/*, ConfigurationViewModel.Configuration*/);
-            RemoteBranchesViewModel = new BranchesViewModel(BranchType.Remote/*, ConfigurationViewModel.Configuration*/);
+            var appConfiguration = new AppConfiguration();
+            ConfigurationViewModel = new AppConfigurationViewModel(appConfiguration);
+            LocalBranchesViewModel = new BranchesViewModel(appConfiguration);
+            RemoteBranchesViewModel = new BranchesViewModel(appConfiguration);
         }
     }
 }

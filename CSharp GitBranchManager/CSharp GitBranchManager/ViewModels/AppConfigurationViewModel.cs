@@ -59,9 +59,10 @@ namespace CSharp_GitBranchManager.ViewModels
 
         #endregion Properties
 
-        public AppConfigurationViewModel()
+        public AppConfigurationViewModel(AppConfiguration appConfiguration)
         {
-            _remoteBranches = new ObservableCollection<string>() { "master" };
+            _configuration = appConfiguration;
+            _remoteBranches = ["master"];
             Load();
         }
 

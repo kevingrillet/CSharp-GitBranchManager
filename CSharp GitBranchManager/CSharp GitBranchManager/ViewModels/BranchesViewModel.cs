@@ -12,6 +12,7 @@ namespace CSharp_GitBranchManager.ViewModels
     {
         private readonly DispatcherTimer _filterTimer;
         private ObservableCollection<BranchInfo> _branches;
+        private AppConfiguration _configuration;
         private ObservableCollection<BranchInfo> _filteredBranches;
         private string _filterText;
         private int _progressValue;
@@ -66,8 +67,9 @@ namespace CSharp_GitBranchManager.ViewModels
 
         #endregion Properties
 
-        public BranchesViewModel()
+        public BranchesViewModel(AppConfiguration appConfiguration)
         {
+            _configuration = appConfiguration;
             _filterTimer = new DispatcherTimer();
             _filterTimer.Interval = TimeSpan.FromMilliseconds(500);
             _filterTimer.Tick += FilterTimer_Tick;

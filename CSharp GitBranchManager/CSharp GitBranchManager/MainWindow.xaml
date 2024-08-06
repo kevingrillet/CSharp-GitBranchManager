@@ -17,15 +17,15 @@
 
         <TabControl x:Name="MainTabControl" Grid.Row="0">
             <TabItem x:Name="TabLocalBranches" Header="Local branches">
-                <v:BranchesView DataContext="{Binding ViewModel.LocalBranchesViewModel, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <v:BranchesView />
             </TabItem>
 
             <TabItem x:Name="TabRemoteBranches" Header="Remote branches">
-                <v:BranchesView DataContext="{Binding ViewModel.RemoteBranchesViewModel, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                <v:BranchesView />
             </TabItem>
 
             <TabItem Header="Configuration">
-                <v:ConfigurationView DataContext="{Binding ViewModel.ConfigurationViewModel, RelativeSource={RelativeSource AncestorType=Window}}" />
+                <v:ConfigurationView />
             </TabItem>
         </TabControl>
     </Grid>
