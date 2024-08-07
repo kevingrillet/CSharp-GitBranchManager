@@ -1,18 +1,23 @@
 ﻿using CSharp_GitBranchManager.Models;
 using CSharp_GitBranchManager.Utils;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Threading;
+using MessageBox = System.Windows.MessageBox;
 
 namespace CSharp_GitBranchManager.ViewModels
 {
     public abstract class ABranchesViewModel : ANotifyPropertyChanged
     {
-        private readonly AppConfiguration _configuration;
+        protected readonly AppConfiguration _configuration;
+        protected ObservableCollection<BranchInfo> _branches;
         private readonly DispatcherTimer _filterTimer;
-        private ObservableCollection<BranchInfo> _branches;
         private ObservableCollection<BranchInfo> _filteredBranches;
         private string _filterText;
         private int _progressValue;
@@ -75,17 +80,42 @@ namespace CSharp_GitBranchManager.ViewModels
                 Interval = TimeSpan.FromMilliseconds(500)
             };
             _filterTimer.Tick += FilterTimer_Tick;
+        }
 
-            LoadData();
+        protected static void ExportBranches(string branchType, IEnumerable<string> branchNames)
+        {
+            try
+            {
+                var dialog = new SaveFileDialog
+                {
+                    Filter = "Text Files (*.txt)|*.txt",
+                    DefaultExt = "txt",
+                    FileName = $"Export {branchType} Names"
+                };
+
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    string filePath = dialog.FileName;
+                    File.WriteAllLines(filePath, branchNames);
+                    MessageBox.Show("Branch names exported successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error exporting branch names: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         protected abstract void DeleteChecked(object obj);
 
         protected abstract void ExportCommand(object obj);
 
-        protected abstract void LoadData();
+        protected abstract void LoadDataAsync();
 
-        protected abstract void LoadGrid(object obj);
+        protected virtual void LoadGrid(object obj)
+        {
+            LoadDataAsync();
+        }
 
         private void FilterTimer_Tick(object sender, EventArgs e)
         {
