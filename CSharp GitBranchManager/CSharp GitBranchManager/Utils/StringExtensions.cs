@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace CSharp_GitBranchManager.Utils
 {
@@ -10,8 +9,7 @@ namespace CSharp_GitBranchManager.Utils
 
         public static List<string> CSVSplitAndTrim(this string input, char[] separators = null)
         {
-            separators ??= defaultSeparators;
-            return input.Split(separators, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+            return [.. input.Split(separators ?? defaultSeparators, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
         }
     }
 }

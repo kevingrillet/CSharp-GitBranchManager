@@ -29,20 +29,26 @@ namespace CSharp_GitBranchManager.Utils
         public bool CanExecute(object parameter)
         {
             if (parameter == null)
-                return _canExecute == null || _canExecute(default(T));
-
+            {
+                return _canExecute == null || _canExecute(default);
+            }
             if (parameter is T typedParameter)
+            {
                 return _canExecute == null || _canExecute(typedParameter);
-
+            }
             return false;
         }
 
         public void Execute(object parameter)
         {
             if (parameter is T typedParameter)
+            {
                 _execute(typedParameter);
+            }
             else
+            {
                 throw new ArgumentException($"The parameter must be of type {typeof(T).Name}", nameof(parameter));
+            }
         }
     }
 }

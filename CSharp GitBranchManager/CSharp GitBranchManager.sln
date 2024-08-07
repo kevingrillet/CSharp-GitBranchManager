@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp GitBranchManager", "CSharp GitBranchManager\CSharp GitBranchManager.csproj", "{44E1BA01-FCF5-4430-B8A0-D1798D9B4F31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharp GitBranchManager", "CSharp GitBranchManager\CSharp GitBranchManager.csproj", "{44E1BA01-FCF5-4430-B8A0-D1798D9B4F31}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{714D261D-7E03-478C-9B8C-8D9AED08427A}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -8,11 +8,11 @@ using System.Windows.Threading;
 
 namespace CSharp_GitBranchManager.ViewModels
 {
-    public class BranchesViewModel : ANotifyPropertyChanged
+    public abstract class ABranchesViewModel : ANotifyPropertyChanged
     {
+        private readonly Configuration _configuration;
         private readonly DispatcherTimer _filterTimer;
         private ObservableCollection<BranchInfo> _branches;
-        private AppConfiguration _configuration;
         private ObservableCollection<BranchInfo> _filteredBranches;
         private string _filterText;
         private int _progressValue;
@@ -67,47 +67,30 @@ namespace CSharp_GitBranchManager.ViewModels
 
         #endregion Properties
 
-        public BranchesViewModel(AppConfiguration appConfiguration)
+        protected ABranchesViewModel(Configuration appConfiguration)
         {
             _configuration = appConfiguration;
-            _filterTimer = new DispatcherTimer();
-            _filterTimer.Interval = TimeSpan.FromMilliseconds(500);
+            _filterTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(500)
+            };
             _filterTimer.Tick += FilterTimer_Tick;
 
             LoadData();
         }
 
-        private void DeleteChecked(object obj)
-        {
-            throw new NotImplementedException();
-        }
+        protected abstract void DeleteChecked(object obj);
 
-        private void ExportCommand(object obj)
-        {
-            throw new NotImplementedException();
-        }
+        protected abstract void ExportCommand(object obj);
+
+        protected abstract void LoadData();
+
+        protected abstract void LoadGrid(object obj);
 
         private void FilterTimer_Tick(object sender, EventArgs e)
         {
             _filterTimer.Stop();
             UpdateFilteredBranches();
-        }
-
-        private void LoadData()
-        {
-            Branches = new ObservableCollection<BranchInfo>
-            {
-                new BranchInfo { Name = "Branch 1", IsChecked = false },
-                new BranchInfo { Name = "Branch 2", IsChecked = true },
-                new BranchInfo { Name = "Branch 3", IsChecked = false }
-            };
-
-            FilteredBranches = new ObservableCollection<BranchInfo>(Branches);
-        }
-
-        private void LoadGrid(object obj)
-        {
-            throw new NotImplementedException();
         }
 
         private void UpdateFilteredBranches()

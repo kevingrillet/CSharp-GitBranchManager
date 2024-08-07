@@ -4,8 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CSharp_GitBranchManager"
-        xmlns:vm="clr-namespace:CSharp_GitBranchManager.ViewModels"
-        xmlns:v="clr-namespace:CSharp_GitBranchManager.Views"
+        xmlns:views="clr-namespace:CSharp_GitBranchManager.Views"
         mc:Ignorable="d"
         Title="CSharp GitBranchManager" Height="720" Width="1240" Icon="/Icons/git.png">
 
@@ -17,15 +16,15 @@
 
         <TabControl x:Name="MainTabControl" Grid.Row="0">
             <TabItem x:Name="TabLocalBranches" Header="Local branches">
-                <v:BranchesView />
+                <views:BranchesView x:Name="LocalBranchesView"/>
             </TabItem>
 
             <TabItem x:Name="TabRemoteBranches" Header="Remote branches">
-                <v:BranchesView />
+                <views:BranchesView x:Name="RemoteBranchesView"/>
             </TabItem>
 
             <TabItem Header="Configuration">
-                <v:ConfigurationView />
+                <views:ConfigurationView x:Name="ConfigurationView"/>
             </TabItem>
         </TabControl>
     </Grid>

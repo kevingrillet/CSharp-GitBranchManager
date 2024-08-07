@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CSharp_GitBranchManager.Models
 {
-    public class AppConfiguration : ANotifyPropertyChanged
+    public class Configuration : ANotifyPropertyChanged
     {
         public static readonly string FilePath = "config.json";
 

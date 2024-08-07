@@ -13,9 +13,9 @@ using MessageBox = System.Windows.MessageBox;
 
 namespace CSharp_GitBranchManager.ViewModels
 {
-    public interface IAppConfigurationViewModel
+    public interface IConfigurationViewModel
     {
-        AppConfiguration Configuration { get; set; }
+        Models.Configuration Configuration { get; set; }
         ObservableCollection<string> RemoteBranches { get; }
 
         #region Commands
@@ -28,12 +28,12 @@ namespace CSharp_GitBranchManager.ViewModels
         #endregion Commands
     }
 
-    public class AppConfigurationViewModel : ANotifyPropertyChanged, IAppConfigurationViewModel
+    public class ConfigurationViewModel : ANotifyPropertyChanged, IConfigurationViewModel
     {
-        private readonly JsonSerializerOptions _loadOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        private readonly JsonSerializerOptions _loadOptions = new() { PropertyNameCaseInsensitive = true };
         private readonly ObservableCollection<string> _remoteBranches;
-        private readonly JsonSerializerOptions _saveOptions = new JsonSerializerOptions { WriteIndented = true };
-        private AppConfiguration _configuration;
+        private readonly JsonSerializerOptions _saveOptions = new() { WriteIndented = true };
+        private Models.Configuration _configuration;
 
         #region Commands
 
@@ -46,7 +46,7 @@ namespace CSharp_GitBranchManager.ViewModels
 
         #region Properties
 
-        public AppConfiguration Configuration
+        public Models.Configuration Configuration
         {
             get => _configuration;
             set => SetField(ref _configuration, value);
@@ -59,7 +59,7 @@ namespace CSharp_GitBranchManager.ViewModels
 
         #endregion Properties
 
-        public AppConfigurationViewModel(AppConfiguration appConfiguration)
+        public ConfigurationViewModel(Models.Configuration appConfiguration)
         {
             _configuration = appConfiguration;
             _remoteBranches = ["master"];
@@ -70,10 +70,10 @@ namespace CSharp_GitBranchManager.ViewModels
         {
             try
             {
-                if (!File.Exists(AppConfiguration.FilePath)) return;
+                if (!File.Exists(Models.Configuration.FilePath)) return;
 
-                string json = File.ReadAllText(AppConfiguration.FilePath);
-                var config = JsonSerializer.Deserialize<AppConfiguration>(json, _loadOptions);
+                string json = File.ReadAllText(Models.Configuration.FilePath);
+                var config = JsonSerializer.Deserialize<Models.Configuration>(json, _loadOptions);
                 _remoteBranches.Clear();
                 _remoteBranches.Add(config.RemoteMergedBranch);
                 Configuration = config;
@@ -108,7 +108,7 @@ namespace CSharp_GitBranchManager.ViewModels
             try
             {
                 var jsonString = JsonSerializer.Serialize(Configuration, _saveOptions);
-                File.WriteAllText(AppConfiguration.FilePath, jsonString);
+                File.WriteAllText(Models.Configuration.FilePath, jsonString);
                 MessageBox.Show("Config saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -119,9 +119,13 @@ namespace CSharp_GitBranchManager.ViewModels
 
         private void SelectRepositoryPath(object parameter)
         {
-            var folderBrowserDialog = new FolderBrowserDialog();
-            folderBrowserDialog.SelectedPath = Configuration.GitRepositoryPath;
+            var folderBrowserDialog = new FolderBrowserDialog
+            {
+                SelectedPath = Configuration.GitRepositoryPath ?? string.Empty
+            };
+
             DialogResult result = folderBrowserDialog.ShowDialog();
+
             if (result == DialogResult.OK)
             {
                 Configuration.GitRepositoryPath = folderBrowserDialog.SelectedPath;
@@ -131,16 +135,9 @@ namespace CSharp_GitBranchManager.ViewModels
 
         private void ValidateTextInput(string input)
         {
-            if (!string.IsNullOrEmpty(input))
+            if (!string.IsNullOrEmpty(input) && input.Any(c => !char.IsDigit(c)))
             {
-                foreach (char c in input)
-                {
-                    if (!char.IsDigit(c))
-                    {
-                        MessageBox.Show("Only numeric characters are allowed.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
-                }
+                MessageBox.Show("Only numeric characters are allowed.", "Invalid Input", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }
