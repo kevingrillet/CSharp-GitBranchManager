@@ -6,7 +6,7 @@ namespace CSharp_GitBranchManager.ViewModels
 {
     public class LocalBranchesViewModel : ABranchesViewModel
     {
-        public LocalBranchesViewModel(Configuration appConfiguration) : base(appConfiguration)
+        public LocalBranchesViewModel(AppConfiguration appConfiguration) : base(appConfiguration)
         {
         }
 

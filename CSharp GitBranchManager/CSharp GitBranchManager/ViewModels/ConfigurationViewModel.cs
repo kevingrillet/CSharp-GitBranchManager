@@ -15,7 +15,7 @@ namespace CSharp_GitBranchManager.ViewModels
 {
     public interface IConfigurationViewModel
     {
-        Models.Configuration Configuration { get; set; }
+        AppConfiguration Configuration { get; set; }
         ObservableCollection<string> RemoteBranches { get; }
 
         #region Commands
@@ -33,7 +33,7 @@ namespace CSharp_GitBranchManager.ViewModels
         private readonly JsonSerializerOptions _loadOptions = new() { PropertyNameCaseInsensitive = true };
         private readonly ObservableCollection<string> _remoteBranches;
         private readonly JsonSerializerOptions _saveOptions = new() { WriteIndented = true };
-        private Models.Configuration _configuration;
+        private AppConfiguration _configuration;
 
         #region Commands
 
@@ -46,7 +46,7 @@ namespace CSharp_GitBranchManager.ViewModels
 
         #region Properties
 
-        public Models.Configuration Configuration
+        public Models.AppConfiguration Configuration
         {
             get => _configuration;
             set => SetField(ref _configuration, value);
@@ -59,7 +59,7 @@ namespace CSharp_GitBranchManager.ViewModels
 
         #endregion Properties
 
-        public ConfigurationViewModel(Models.Configuration appConfiguration)
+        public ConfigurationViewModel(Models.AppConfiguration appConfiguration)
         {
             _configuration = appConfiguration;
             _remoteBranches = ["master"];
@@ -70,10 +70,10 @@ namespace CSharp_GitBranchManager.ViewModels
         {
             try
             {
-                if (!File.Exists(Models.Configuration.FilePath)) return;
+                if (!File.Exists(Models.AppConfiguration.FilePath)) return;
 
-                string json = File.ReadAllText(Models.Configuration.FilePath);
-                var config = JsonSerializer.Deserialize<Models.Configuration>(json, _loadOptions);
+                string json = File.ReadAllText(Models.AppConfiguration.FilePath);
+                var config = JsonSerializer.Deserialize<Models.AppConfiguration>(json, _loadOptions);
                 _remoteBranches.Clear();
                 _remoteBranches.Add(config.RemoteMergedBranch);
                 Configuration = config;
@@ -108,7 +108,7 @@ namespace CSharp_GitBranchManager.ViewModels
             try
             {
                 var jsonString = JsonSerializer.Serialize(Configuration, _saveOptions);
-                File.WriteAllText(Models.Configuration.FilePath, jsonString);
+                File.WriteAllText(Models.AppConfiguration.FilePath, jsonString);
                 MessageBox.Show("Config saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)

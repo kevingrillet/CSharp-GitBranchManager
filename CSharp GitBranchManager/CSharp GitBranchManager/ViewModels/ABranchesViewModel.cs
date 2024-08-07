@@ -10,7 +10,7 @@ namespace CSharp_GitBranchManager.ViewModels
 {
     public abstract class ABranchesViewModel : ANotifyPropertyChanged
     {
-        private readonly Configuration _configuration;
+        private readonly AppConfiguration _configuration;
         private readonly DispatcherTimer _filterTimer;
         private ObservableCollection<BranchInfo> _branches;
         private ObservableCollection<BranchInfo> _filteredBranches;
@@ -67,7 +67,7 @@ namespace CSharp_GitBranchManager.ViewModels
 
         #endregion Properties
 
-        protected ABranchesViewModel(Configuration appConfiguration)
+        protected ABranchesViewModel(AppConfiguration appConfiguration)
         {
             _configuration = appConfiguration;
             _filterTimer = new DispatcherTimer

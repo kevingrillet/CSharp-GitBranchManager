@@ -11,7 +11,7 @@ namespace CSharp_GitBranchManager
         {
             InitializeComponent();
 
-            var configuration = new Configuration();
+            var configuration = new AppConfiguration();
 
             LocalBranchesView.DataContext = new LocalBranchesViewModel(configuration);
             RemoteBranchesView.DataContext = new RemoteBranchesViewModel(configuration);

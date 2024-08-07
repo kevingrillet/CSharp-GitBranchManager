@@ -6,7 +6,7 @@ namespace CSharp_GitBranchManager.ViewModels
 {
     public class RemoteBranchesViewModel : ABranchesViewModel
     {
-        public RemoteBranchesViewModel(Configuration appConfiguration) : base(appConfiguration)
+        public RemoteBranchesViewModel(AppConfiguration appConfiguration) : base(appConfiguration)
         {
         }
 
