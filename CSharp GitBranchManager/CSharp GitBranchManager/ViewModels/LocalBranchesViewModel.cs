@@ -13,7 +13,7 @@ namespace CSharp_GitBranchManager.ViewModels
         {
         }
 
-        protected override void DeleteChecked(object obj)
+        protected override void DeleteChecked()
         {
             var result = MessageBox.Show($"Are you sure you want to delete the {_branches.Count(b => b.IsChecked)} checked local branches?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result != MessageBoxResult.Yes) return;
@@ -34,7 +34,7 @@ namespace CSharp_GitBranchManager.ViewModels
             }
         }
 
-        protected override void ExportCommand(object obj)
+        protected override void ExportCommand()
         {
             ExportBranches("LocalBranches", _branches.Select(branch => branch.Name));
         }

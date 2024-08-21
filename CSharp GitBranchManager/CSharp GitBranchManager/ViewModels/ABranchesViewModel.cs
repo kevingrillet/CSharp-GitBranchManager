@@ -25,9 +25,9 @@ namespace CSharp_GitBranchManager.ViewModels
 
         #region Commands
 
-        public ICommand DeleteCheckedCommand => new RelayCommand<object>(DeleteChecked);
-        public ICommand ExportCommandCommand => new RelayCommand<object>(ExportCommand);
-        public ICommand LoadGridCommand => new RelayCommand<object>(LoadGrid);
+        public ICommand DeleteCheckedCommand => new RelayCommand(DeleteChecked);
+        public ICommand ExportCommandCommand => new RelayCommand(ExportCommand);
+        public ICommand LoadGridCommand => new RelayCommand(LoadGrid);
 
         #endregion Commands
 
@@ -106,13 +106,13 @@ namespace CSharp_GitBranchManager.ViewModels
             }
         }
 
-        protected abstract void DeleteChecked(object obj);
+        protected abstract void DeleteChecked();
 
-        protected abstract void ExportCommand(object obj);
+        protected abstract void ExportCommand();
 
         protected abstract void LoadDataAsync();
 
-        protected virtual void LoadGrid(object obj)
+        protected virtual void LoadGrid()
         {
             LoadDataAsync();
         }

@@ -37,9 +37,9 @@ namespace CSharp_GitBranchManager.ViewModels
 
         #region Commands
 
-        public ICommand ReleadRemoteBranchesCommand => new RelayCommand<object>(ReleadRemoteBranches);
-        public ICommand SaveCommand => new RelayCommand<object>(Save);
-        public ICommand SelectRepositoryPathCommand => new RelayCommand<object>(SelectRepositoryPath);
+        public ICommand ReleadRemoteBranchesCommand => new RelayCommand(ReleadRemoteBranches);
+        public ICommand SaveCommand => new RelayCommand(Save);
+        public ICommand SelectRepositoryPathCommand => new RelayCommand(SelectRepositoryPath);
         public ICommand ValidateTextInputCommand => new RelayCommand<string>(ValidateTextInput);
 
         #endregion Commands
@@ -84,7 +84,7 @@ namespace CSharp_GitBranchManager.ViewModels
             }
         }
 
-        private void ReleadRemoteBranches(object parameter)
+        private void ReleadRemoteBranches()
         {
             using (var repo = new Repository(Configuration.GitRepositoryPath))
             {
@@ -103,7 +103,7 @@ namespace CSharp_GitBranchManager.ViewModels
             }
         }
 
-        private void Save(object parameter)
+        private void Save()
         {
             try
             {
@@ -117,7 +117,7 @@ namespace CSharp_GitBranchManager.ViewModels
             }
         }
 
-        private void SelectRepositoryPath(object parameter)
+        private void SelectRepositoryPath()
         {
             var folderBrowserDialog = new FolderBrowserDialog
             {
